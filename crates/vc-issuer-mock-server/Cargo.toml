@@ -1,0 +1,18 @@
+[package]
+name = "vc-issuer-mock-server"
+description = "Standalone (VC-API) HTTP server"
+documentation = "https://docs.rs/vc-issuer-mock-server/"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+rust-version.workspace = true
+edition.workspace = true
+
+[dependencies]
+vc-issuer-mock-core.workspace = true
+
+axum.workspace = true

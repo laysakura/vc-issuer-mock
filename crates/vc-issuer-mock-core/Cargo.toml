@@ -1,0 +1,16 @@
+[package]
+name = "vc-issuer-mock-core"
+description = "Core implementations for VC Issuer Mock. Meant to be used only as a dependency for vc-issuer-mock- family."
+documentation = "https://docs.rs/vc-issuer-mock-core/"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+rust-version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axum.workspace = true
