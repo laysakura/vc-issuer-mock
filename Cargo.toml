@@ -1,0 +1,22 @@
+[workspace]
+members = ["crates/vc-issuer-mock-core", "crates/vc-issuer-mock-server"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Sho Nakatani"]
+license = "MIT/Apache-2.0"
+homepage = "https://github.com/laysakura/vc-issuer-mock"
+repository = "https://github.com/laysakura/vc-issuer-mock"
+readme = "README.md"
+keywords = ["vc-issuer-mock", "mock", "vc", "vc-api", "http"]
+rust-version = "1.77"
+edition = "2021"
+
+[workspace.dependencies]
+axum = { version = "0.7.5", features = ["macros"] }
+
+[workspace.metadata.release]
+sign-tag = true
+tag-prefix = "{{crate_name}}/"
+tag-message = "Release {{crate_name}} version {{version}}."
+pre-release-commit-message = "Release"
