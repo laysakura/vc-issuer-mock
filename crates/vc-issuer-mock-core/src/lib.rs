@@ -9,3 +9,6 @@ use axum::{routing::post, Router};
 pub fn vc_api_router() -> Router {
     Router::new().route("/credentials/issue", post(endpoints::credentials::issue))
 }
+
+#[cfg(test)]
+pub mod test_vc_json;

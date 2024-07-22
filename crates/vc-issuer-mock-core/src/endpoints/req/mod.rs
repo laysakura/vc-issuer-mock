@@ -20,38 +20,34 @@ pub(crate) struct IssueRequest {
 pub(crate) struct IssueRequestOptions {
     #[serde_as(as = "Option<Vec<DisplayFromStr>>")]
     pub(crate) mandatory_pointers: Option<Vec<JsonPointerBuf>>,
-    // TODO add `credentialId` property
+    pub(crate) credential_id: Option<String>,
 }
 
 #[cfg(test)]
 mod tests {
 
+    use crate::test_vc_json::{vc_data_model_2_0_test_suite, vc_issuer_api_openapi_spec};
+
     use super::*;
 
     #[test]
     fn test_deserialize_issue_request() {
-        let json = r#"{
-  "credential": {
-    "@context": [
-      "https://www.w3.org/ns/credentials/v2",
-      "https://www.w3.org/ns/credentials/examples/v2"
-    ],
-    "id": "http://university.example/credentials/1872",
-    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
-    "issuer": "https://university.example/issuers/565049",
-    "validFrom": "2023-07-01T19:23:24Z",
-    "credentialSubject": {
-      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-      "alumniOf": {
-        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
-        "name": "Example University"
-      }
-    }
-  },
-  "options": {}
-}"#;
-        let issue_request: IssueRequest = serde_json::from_str(json).unwrap();
-        assert_eq!(issue_request.credential.issuer.id(), "https://university.example/issuers/565049");
-        assert!(issue_request.options.mandatory_pointers.is_none());
+        let readme_alumni: IssueRequest =
+            serde_json::from_str(vc_data_model_2_0_test_suite::README_ALUMNI)
+                .expect("Failed to deserialize vc_data_model_2_0_test_suite::README_ALUMNI");
+        assert!(readme_alumni.options.credential_id.is_none());
+        assert!(readme_alumni.options.mandatory_pointers.is_none());
+
+        let request_sample: IssueRequest =
+            serde_json::from_str(vc_issuer_api_openapi_spec::REQUEST_SAMPLE)
+                .expect("Failed to deserialize vc_issuer_api_openapi_spec::REQUEST_SAMPLE");
+        assert_eq!(
+            request_sample.options.credential_id,
+            Some("example.com/ad5d541f-db7a-4bff-97e1-d403ce403767".to_string())
+        );
+        let ptr = request_sample.options.mandatory_pointers.unwrap();
+        assert_eq!(ptr[0].as_str(), "/issuer");
+        assert_eq!(ptr[0].as_str(), "/issuer");
+        assert_eq!(ptr[0].as_str(), "/issuer");
     }
 }
