@@ -4,6 +4,8 @@ Core implementations for VC Issuer Mock. Meant to be used only as a dependency f
 
 ## Conformance to W3C VC-API
 
+vc-issuer-mock-core is implemented as an [Issuer Service](https://w3c-ccg.github.io/vc-api/#issuer-service).
+
 TODO list the conformances
 
 - DATA-INTEGRITY
