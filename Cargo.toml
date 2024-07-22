@@ -17,6 +17,13 @@ edition = "2021"
 vc-issuer-mock-core = { path = "crates/vc-issuer-mock-core", version = "0.1.0" }
 
 axum = { version = "0.7.5", features = ["macros"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_with = { version = "3.9.0", features = ["json"] }
+ssi = { git = "https://github.com/spruceid/ssi.git", rev = "46d89d2", features = [
+    "secp384r1",
+    "bbs",
+] }
 
 [workspace.metadata.release]
 sign-tag = true
