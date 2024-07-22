@@ -46,8 +46,9 @@ mod tests {
             Some("example.com/ad5d541f-db7a-4bff-97e1-d403ce403767".to_string())
         );
         let ptr = request_sample.options.mandatory_pointers.unwrap();
+        assert_eq!(ptr.len(), 3);
         assert_eq!(ptr[0].as_str(), "/issuer");
-        assert_eq!(ptr[0].as_str(), "/issuer");
-        assert_eq!(ptr[0].as_str(), "/issuer");
+        assert_eq!(ptr[1].as_str(), "/validFrom");
+        assert_eq!(ptr[2].as_str(), "/validUntil");
     }
 }
