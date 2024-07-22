@@ -1,6 +1,6 @@
-# Running vc-api-issuer-test-suite against vc-issuer-mock-core
+# Running vc-data-model-2.0-test-suite against vc-issuer-mock-core
 
-This directory contains necessary files to pass the [vc-api-issuer-test-suite](https://github.com/w3c-ccg/vc-api-issuer-test-suite/).
+This directory contains necessary files to pass the [vc-data-model-2.0-test-suite](https://github.com/w3c/vc-data-model-2.0-test-suite/).
 
 ## Test locally
 
