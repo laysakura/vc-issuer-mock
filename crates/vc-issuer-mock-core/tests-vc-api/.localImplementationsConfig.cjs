@@ -5,15 +5,15 @@ module.exports = [
     issuers: [
       {
         id: "urn:uuid:my:implementation:issuer:id",
-        endpoint: "https://localhost:40443/issuers/foo/credentials/issue",
+        endpoint: "http://localhost:40080/credentials/issue",
         tags: ["vc-api", "localhost"],
       },
     ],
     verifiers: [
       {
-        id: "https://localhost:40443/verifiers/z19uokPn3b1Z4XDbQSHo7VhFR",
+        id: "http://localhost:40080/verifiers/z19uokPn3b1Z4XDbQSHo7VhFR",
         endpoint:
-          "https://localhost:40443/verifiers/z19uokPn3b1Z4XDbQSHo7VhFR/credentials/verify",
+          "http://localhost:40080/verifiers/z19uokPn3b1Z4XDbQSHo7VhFR/credentials/verify",
         tags: ["vc-api", "localhost"],
       },
     ],

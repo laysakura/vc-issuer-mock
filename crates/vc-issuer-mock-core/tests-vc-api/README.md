@@ -7,14 +7,11 @@ This directory contains necessary files to pass the [vc-api-issuer-test-suite](h
 Setup:
 
 ```console
-cd vc-api-issuer-test-suite
-npm i
-cp ../.localImplementationsConfig.cjs .
-sed -i "s/^const tag = 'vc-api';/const tag = 'localhost';/" tests/10-issuer.js
+./local-setup.sh
 ```
 
 Run:
 
 ```console
-npm test
+./local-test.sh
 ```
