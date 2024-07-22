@@ -1,6 +1,7 @@
 #!/bin/sh
+set -e
 
-pushd vc-api-issuer-test-suite
+pushd vc-data-model-2.0-test-suite
 npm i
-cp -f ../.localImplementationsConfig.cjs .
+cp -f ../localConfig.cjs .
 popd

@@ -14,9 +14,9 @@ TODO list the conformances
 
 This crate is tested against the following test suites:
 
-- [vc-api-issuer-test-suite](https://github.com/w3c-ccg/vc-api-issuer-test-suite)
+- [vc-data-model-2.0-test-suite](https://github.com/w3c-ccg/vc-data-model-2.0-test-suite)
 
 TODO
 
 - refer to the internal CI results
-- refer to <https://w3c-ccg.github.io/vc-api-issuer-test-suite/>
+- refer to <https://w3c-ccg.github.io/vc-data-model-2.0-test-suite/>

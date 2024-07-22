@@ -1,0 +1,3 @@
+[submodule "crates/vc-issuer-mock-core/tests-vc-api/vc-data-model-2.0-test-suite"]
+	path = crates/vc-issuer-mock-core/tests-vc-api/vc-data-model-2.0-test-suite
+	url = git@github.com:w3c/vc-data-model-2.0-test-suite.git
