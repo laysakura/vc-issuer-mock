@@ -333,4 +333,27 @@ mod tests {
         )
         .await
     }
+
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_credential_subject_empty() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validUntil": "2023-07-01T19:23:24Z",
+    "credentialSubject": []
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
 }
