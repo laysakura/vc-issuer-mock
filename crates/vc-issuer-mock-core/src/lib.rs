@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod endpoints;
+pub(crate) mod vcdm_v2;
 
 use axum::{routing::post, Router};
 
