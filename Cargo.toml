@@ -24,6 +24,7 @@ ssi = { git = "https://github.com/spruceid/ssi.git", rev = "46d89d2", features =
     "secp384r1",
     "bbs",
 ] }
+tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
 
 [workspace.metadata.release]
 sign-tag = true
