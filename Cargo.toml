@@ -16,6 +16,7 @@ edition = "2021"
 [workspace.dependencies]
 vc-issuer-mock-core = { path = "crates/vc-issuer-mock-core", version = "0.1.0" }
 
+anyhow = "1.0.70"
 axum = { version = "0.7.5", features = ["macros"] }
 http = "1.1.0"
 json-syntax = "0.12.5"
@@ -27,6 +28,7 @@ ssi = { git = "https://github.com/spruceid/ssi.git", rev = "46d89d2", features =
     "bbs",
 ] }
 tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1.37"
 
 [workspace.metadata.release]
 sign-tag = true

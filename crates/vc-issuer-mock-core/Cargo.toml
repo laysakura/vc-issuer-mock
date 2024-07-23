@@ -13,6 +13,7 @@ rust-version.workspace = true
 edition.workspace = true
 
 [dependencies]
+anyhow.workspace = true
 axum.workspace = true
 http.workspace = true
 json-syntax.workspace = true
@@ -20,6 +21,7 @@ serde.workspace = true
 serde_json.workspace = true
 serde_with.workspace = true
 ssi.workspace = true
+tracing.workspace = true
 
 [dev-dependencies]
 tokio.workspace = true

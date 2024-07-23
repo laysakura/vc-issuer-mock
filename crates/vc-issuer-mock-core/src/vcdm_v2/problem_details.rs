@@ -30,6 +30,19 @@ impl ProblemDetails {
     }
 }
 
+impl fmt::Display for ProblemDetails {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "type={}, code={}, title={}, detail={}",
+            self.problem_type,
+            self.code.unwrap_or(0),
+            self.title,
+            self.detail
+        )
+    }
+}
+
 pub(crate) trait ProblemType: fmt::Display + fmt::Debug + Send + Sync + 'static {
     fn url(&self) -> &'static str;
     fn code(&self) -> i32;
