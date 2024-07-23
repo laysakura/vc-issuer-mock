@@ -5,11 +5,11 @@ use serde_with::{serde_as, DisplayFromStr};
 
 /// [Problem Details](https://www.w3.org/TR/vc-data-model-2.0/#problem-details).
 #[serde_as]
-#[derive(Clone, Debug, Serialize)]
+#[derive(Debug, Serialize)]
 pub(crate) struct ProblemDetails {
     #[serde(rename = "type")]
     #[serde_as(as = "DisplayFromStr")]
-    problem_type: ProblemType,
+    problem_type: Box<dyn ProblemType>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     code: Option<i32>,
@@ -19,10 +19,10 @@ pub(crate) struct ProblemDetails {
 }
 
 impl ProblemDetails {
-    pub(crate) fn new(problem_type: ProblemType, title: String, detail: String) -> Self {
+    pub(crate) fn new<T: ProblemType>(problem_type: T, title: String, detail: String) -> Self {
         let code = problem_type.code();
         Self {
-            problem_type,
+            problem_type: Box::new(problem_type),
             code: Some(code),
             title,
             detail,
@@ -30,41 +30,48 @@ impl ProblemDetails {
     }
 }
 
-#[serde_as]
+pub(crate) trait ProblemType: fmt::Display + fmt::Debug + Send + Sync + 'static {
+    fn url(&self) -> &'static str;
+    fn code(&self) -> i32;
+}
+
+/// Predefined `type`s in <https://www.w3.org/TR/vc-data-model-2.0/#problem-details>.
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub(crate) enum ProblemType {
+pub(crate) enum PredefinedProblemType {
     ParsingError,
     CryptographicSecurityError,
     MalformedValueError,
     RangeError,
 }
 
-impl ProblemType {
+impl ProblemType for PredefinedProblemType {
     fn url(&self) -> &'static str {
         match self {
-            ProblemType::ParsingError => "https://www.w3.org/TR/vc-data-model#PARSING_ERROR",
-            ProblemType::CryptographicSecurityError => {
+            PredefinedProblemType::ParsingError => {
+                "https://www.w3.org/TR/vc-data-model#PARSING_ERROR"
+            }
+            PredefinedProblemType::CryptographicSecurityError => {
                 "https://www.w3.org/TR/vc-data-model#CRYPTOGRAPHIC_SECURITY_ERROR"
             }
-            ProblemType::MalformedValueError => {
+            PredefinedProblemType::MalformedValueError => {
                 "https://www.w3.org/TR/vc-data-model#MALFORMED_VALUE_ERROR"
             }
-            ProblemType::RangeError => "https://www.w3.org/TR/vc-data-model#RANGE_ERROR",
+            PredefinedProblemType::RangeError => "https://www.w3.org/TR/vc-data-model#RANGE_ERROR",
         }
     }
 
     fn code(&self) -> i32 {
         match self {
-            ProblemType::ParsingError => -64,
-            ProblemType::CryptographicSecurityError => -65,
-            ProblemType::MalformedValueError => -66,
-            ProblemType::RangeError => -67,
+            PredefinedProblemType::ParsingError => -64,
+            PredefinedProblemType::CryptographicSecurityError => -65,
+            PredefinedProblemType::MalformedValueError => -66,
+            PredefinedProblemType::RangeError => -67,
         }
     }
 }
 
-impl fmt::Display for ProblemType {
+impl fmt::Display for PredefinedProblemType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.url())
     }
@@ -77,7 +84,7 @@ mod tests {
     #[test]
     fn test_serialize_problem_details_parsing_error() {
         let problem = ProblemDetails::new(
-            ProblemType::ParsingError,
+            PredefinedProblemType::ParsingError,
             "Parsing Error".to_string(),
             "Failed to parse the request body.".to_string(),
         );
@@ -91,7 +98,7 @@ mod tests {
     #[test]
     fn test_serialize_problem_details_cryptographic_security_error() {
         let problem = ProblemDetails::new(
-            ProblemType::CryptographicSecurityError,
+            PredefinedProblemType::CryptographicSecurityError,
             "Cryptographic Security Error".to_string(),
             "Failed to verify the cryptographic proof.".to_string(),
         );
@@ -105,7 +112,7 @@ mod tests {
     #[test]
     fn test_serialize_problem_details_malformed_value_error() {
         let problem = ProblemDetails::new(
-            ProblemType::MalformedValueError,
+            PredefinedProblemType::MalformedValueError,
             "Malformed Value Error".to_string(),
             "The request body contains a malformed value.".to_string(),
         );
@@ -119,7 +126,7 @@ mod tests {
     #[test]
     fn test_serialize_problem_details_range_error() {
         let problem = ProblemDetails::new(
-            ProblemType::RangeError,
+            PredefinedProblemType::RangeError,
             "Range Error".to_string(),
             "The request body contains a value out of range.".to_string(),
         );
