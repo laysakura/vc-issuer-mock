@@ -12,7 +12,6 @@ use axum::{
 use http::StatusCode;
 use serde::Serialize;
 use serde_with::serde_as;
-use ssi::dids::document::representation::Unknown;
 use tracing::error;
 
 use crate::{

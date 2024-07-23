@@ -5,7 +5,7 @@ use serde_with::serde_as;
 use ssi::claims::{data_integrity::JsonPointerBuf, vc::v2};
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct IssueRequest {
     /// Currently, we do not support VCDM v1.
@@ -14,7 +14,7 @@ pub(crate) struct IssueRequest {
 }
 
 /// `options` field in [`self::IssueRequest``].
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde_as]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct IssueRequestOptions {

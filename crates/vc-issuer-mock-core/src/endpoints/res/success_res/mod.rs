@@ -11,8 +11,8 @@ use serde_with::serde_as;
 #[derive(Debug, Serialize)]
 pub(crate) struct SuccessRes<T: Serialize> {
     #[serde_as(as = "serde_with::FromInto<u16>")]
-    status: StatusCode,
-    body: T,
+    pub(crate) status: StatusCode,
+    pub(crate) body: T,
 }
 
 impl<T: Serialize> IntoResponse for SuccessRes<T> {
