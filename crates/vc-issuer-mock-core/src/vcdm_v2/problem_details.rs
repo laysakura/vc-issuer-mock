@@ -28,6 +28,16 @@ impl ProblemDetails {
             detail,
         }
     }
+
+    /// `type` property.
+    pub(crate) fn r#type(&self) -> &str {
+        self.problem_type.url()
+    }
+
+    /// `code` property.
+    pub(crate) fn code(&self) -> Option<i32> {
+        self.code
+    }
 }
 
 impl fmt::Display for ProblemDetails {

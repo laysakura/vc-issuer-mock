@@ -24,8 +24,8 @@ use crate::{
 #[derive(Debug, Serialize)]
 pub(crate) struct ErrorRes {
     #[serde_as(as = "serde_with::FromInto<u16>")]
-    status: StatusCode,
-    problem_details: ProblemDetails,
+    pub(crate) status: StatusCode,
+    pub(crate) problem_details: ProblemDetails,
 }
 
 impl Error for ErrorRes {}

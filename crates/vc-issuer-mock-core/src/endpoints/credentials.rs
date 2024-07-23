@@ -20,12 +20,19 @@ pub(crate) async fn issue(
 #[cfg(test)]
 mod tests {
     use ssi::{
-        claims::{data_integrity::TypeRef, vc::v2::Credential},
+        claims::{
+            data_integrity::TypeRef,
+            vc::v2::{Context, Credential},
+        },
+        json_ld::IriRefBuf,
         prelude::CryptographicSuite,
         verification_methods::ProofPurpose,
     };
 
-    use crate::test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI;
+    use crate::{
+        test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
+        vcdm_v2::problem_details::{self, PredefinedProblemType, ProblemType},
+    };
 
     use super::*;
 
@@ -94,5 +101,236 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    async fn assert_issue_parsing_error(req_json: &str, code: i32) -> anyhow::Result<()> {
+        let req: IssueRequest = serde_json::from_str(req_json)?;
+        let req = Json(req);
+
+        let res = issue(req.clone()).await.unwrap_err();
+        assert_eq!(res.status, 400);
+
+        let problem_details = &res.problem_details;
+        assert_eq!(problem_details.code().unwrap(), code);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_issue_parsing_error() -> anyhow::Result<()> {
+        assert_issue_parsing_error("{INVALID JSON}", PredefinedProblemType::ParsingError.code())
+            .await
+    }
+
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_context_unexpected_url() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://example.com/INVALID_CONTEXT"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validFrom": "2023-07-01T19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_context_not_url() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validFrom": "2023-07-01T19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    /// <https://www.w3.org/TR/vc-data-model-2.0/#identifiers>
+    ///
+    /// > If present, the value of the id property MUST be a single URL, which MAY be dereferenceable.
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_id_not_url() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "INVALID_ID",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validFrom": "2023-07-01T19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    /// <https://www.w3.org/TR/vc-data-model-2.0/#types>
+    ///
+    /// > The value of the type property MUST be one or more terms and/or...
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_empty_type() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": [],
+    "issuer": "https://university.example/issuers/565049",
+    "validFrom": "2023-07-01T19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    /// <https://www.w3.org/TR/vc-data-model-2.0/#issuer>
+    ///
+    /// > The value of the issuer property MUST be either a URL, or an object containing an id property whose value is a URL;
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_issuer_not_url() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "INVALID_ISSUER",
+    "validFrom": "2023-07-01T19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    /// Date and time should be separated by `T` instead of a space.
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_valid_from_invalid() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validFrom": "2023-07-01 19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
+    }
+
+    /// Date and time should be separated by `T` instead of a space.
+    #[tokio::test]
+    async fn test_issue_malformed_value_error_valid_until_invalid() -> anyhow::Result<()> {
+        assert_issue_parsing_error(
+            r#"
+{
+  "credential": {
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2"
+    ],
+    "id": "http://university.example/credentials/1872",
+    "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+    "issuer": "https://university.example/issuers/565049",
+    "validUntil": "2023-07-01 19:23:24Z",
+    "credentialSubject": {
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "alumniOf": {
+        "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+        "name": "Example University"
+      }
+    }
+  },
+  "options": {}
+}"#,
+            PredefinedProblemType::MalformedValueError.code(),
+        )
+        .await
     }
 }
