@@ -35,7 +35,7 @@ impl ProblemDetails {
 #[serde_as]
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum ProblemType {
+pub(crate) enum ProblemType {
     ParsingError,
     CryptographicSecurityError,
     MalformedValueError,
@@ -43,7 +43,7 @@ pub enum ProblemType {
 }
 
 impl ProblemType {
-    pub fn url(&self) -> &'static str {
+    fn url(&self) -> &'static str {
         match self {
             ProblemType::ParsingError => "https://www.w3.org/TR/vc-data-model#PARSING_ERROR",
             ProblemType::CryptographicSecurityError => {
@@ -56,7 +56,7 @@ impl ProblemType {
         }
     }
 
-    pub fn code(&self) -> i32 {
+    fn code(&self) -> i32 {
         match self {
             ProblemType::ParsingError => -64,
             ProblemType::CryptographicSecurityError => -65,
