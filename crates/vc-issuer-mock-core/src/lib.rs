@@ -5,6 +5,7 @@ pub use issuer_keys::IssuerKeys;
 
 pub(crate) mod endpoints;
 pub(crate) mod vcdm_v2;
+pub(crate) mod verification_method;
 
 use axum::{routing::post, Extension, Router};
 
@@ -16,6 +17,6 @@ pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
 }
 
 #[cfg(test)]
-pub mod test_vc_json;
-#[cfg(test)]
 pub mod test_issuer_keys;
+#[cfg(test)]
+pub mod test_vc_json;

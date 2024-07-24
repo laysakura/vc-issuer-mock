@@ -8,19 +8,42 @@ use crate::vcdm_v2::problem_details::ProblemType;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub(crate) struct UnknownProblemType;
+pub(crate) enum CustomProblemType {
+    InvalidCryptosuiteError,
+    VerificationMethodResolutionError,
+    SignatureError,
+    UnknownError,
+}
 
-impl ProblemType for UnknownProblemType {
+impl ProblemType for CustomProblemType {
     fn url(&self) -> &'static str {
-        "https://github.com/laysakura/vc-issuer-mock#UNKNOWN_PROBLEM_TYPE"
+        match self {
+            CustomProblemType::InvalidCryptosuiteError => {
+                "https://github.com/laysakura/vc-issuer-mock#INVALID_CRYPTOSUITE_ERROR"
+            }
+            CustomProblemType::VerificationMethodResolutionError => {
+                "https://github.com/laysakura/vc-issuer-mock#VERIFICATION_METHOD_RESOLUTION_ERROR"
+            }
+            CustomProblemType::SignatureError => {
+                "https://github.com/laysakura/vc-issuer-mock#SIGNATURE_ERROR"
+            }
+            CustomProblemType::UnknownError => {
+                "https://github.com/laysakura/vc-issuer-mock#UNKNOWN_ERROR"
+            }
+        }
     }
 
     fn code(&self) -> i32 {
-        -500
+        match self {
+            CustomProblemType::InvalidCryptosuiteError => -400,
+            CustomProblemType::VerificationMethodResolutionError => -401,
+            CustomProblemType::SignatureError => -402,
+            CustomProblemType::UnknownError => -500,
+        }
     }
 }
 
-impl fmt::Display for UnknownProblemType {
+impl fmt::Display for CustomProblemType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.url())
     }

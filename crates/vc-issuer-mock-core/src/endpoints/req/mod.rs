@@ -2,14 +2,16 @@
 
 use serde::Deserialize;
 use serde_with::serde_as;
-use ssi::claims::{data_integrity::JsonPointerBuf, vc::v2};
+use ssi::claims::data_integrity::JsonPointerBuf;
+
+use crate::endpoints::res::VerifiableCredentialV2;
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct IssueRequest {
     /// Currently, we do not support VCDM v1.
-    pub(crate) credential: v2::SpecializedJsonCredential,
+    pub(crate) credential: VerifiableCredentialV2,
     pub(crate) options: IssueRequestOptions,
 }
 

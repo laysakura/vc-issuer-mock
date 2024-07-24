@@ -1,6 +1,10 @@
 use std::str::FromStr;
 
-use ssi::JWK;
+use ssi::{
+    claims::SignatureError,
+    verification_methods::{LocalSigner, MaybeJwkVerificationMethod, Signer},
+    JWK,
+};
 
 /// A container of issuer keys (both private and public).
 #[derive(Clone, Debug)]
@@ -58,11 +62,8 @@ impl IssuerKeys {
     }
 
     /// Get the public keys of the issuer.
-    pub fn public_keys(&self) -> Vec<String> {
-        self.0
-            .iter()
-            .map(|key| key.public.to_string())
-            .collect::<Vec<_>>()
+    pub fn public_keys(&self) -> Vec<&JWK> {
+        self.0.iter().map(|key| &key.public).collect::<Vec<_>>()
     }
 
     /// Get the key pairs of the issuer.
@@ -70,10 +71,41 @@ impl IssuerKeys {
     /// # Returns
     ///
     /// A vector of tuples, each containing `(private_key, public_key)`.
-    pub fn key_pairs(&self) -> Vec<(String, String)> {
+    pub fn key_pairs(&self) -> Vec<(&JWK, &JWK)> {
         self.0
             .iter()
-            .map(|key| (key.private.to_string(), key.public.to_string()))
+            .map(|key| (&key.private, &key.public))
             .collect::<Vec<_>>()
+    }
+
+    /// Find the private key corresponding to the given public key.
+    pub fn find_private_key(&self, public_key: &JWK) -> Option<&JWK> {
+        self.0.iter().find_map(|key| {
+            if &key.public == public_key {
+                Some(&key.private)
+            } else {
+                None
+            }
+        })
+    }
+
+    pub(crate) fn into_local_signer(self) -> LocalSigner<Self> {
+        LocalSigner(self)
+    }
+}
+
+// Similar codes to: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/keys.rs#L19-L33>
+impl<M: MaybeJwkVerificationMethod> Signer<M> for IssuerKeys {
+    type MessageSigner = JWK; // private key (signing key)
+
+    async fn for_method(
+        &self,
+        method: std::borrow::Cow<'_, M>,
+    ) -> Result<Option<Self::MessageSigner>, SignatureError> {
+        if let Some(public_jwk) = method.try_to_jwk() {
+            Ok(self.find_private_key(&public_jwk).cloned())
+        } else {
+            Ok(None)
+        }
     }
 }

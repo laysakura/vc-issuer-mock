@@ -2,6 +2,12 @@ use std::fmt;
 
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
+use ssi::{
+    claims::data_integrity::InvalidCryptosuiteString,
+    verification_methods::VerificationMethodResolutionError,
+};
+
+use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
 
 /// [Problem Details](https://www.w3.org/TR/vc-data-model-2.0/#problem-details).
 #[serde_as]
@@ -49,6 +55,26 @@ impl fmt::Display for ProblemDetails {
             self.code.unwrap_or(0),
             self.title,
             self.detail
+        )
+    }
+}
+
+impl From<VerificationMethodResolutionError> for ProblemDetails {
+    fn from(e: VerificationMethodResolutionError) -> Self {
+        ProblemDetails::new(
+            CustomProblemType::VerificationMethodResolutionError,
+            "verification method resolution error".to_string(),
+            e.to_string(),
+        )
+    }
+}
+
+impl From<InvalidCryptosuiteString> for ProblemDetails {
+    fn from(e: InvalidCryptosuiteString) -> Self {
+        ProblemDetails::new(
+            CustomProblemType::InvalidCryptosuiteError,
+            "invalid cryptosuite error".to_string(),
+            e.to_string(),
         )
     }
 }

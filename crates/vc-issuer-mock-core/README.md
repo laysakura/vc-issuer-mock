@@ -1,5 +1,7 @@
 # vc-issuer-mock-core
 
+<!-- cargo-rdme start -->
+
 Core implementations for VC Issuer Mock. Meant to be used only as a dependency for vc-issuer-mock- family.
 
 ## Conformance to W3C VC-API
@@ -15,6 +17,8 @@ TODO list the conformances
 This crate is tested against the following test suites:
 
 - [vc-data-model-2.0-test-suite](https://github.com/w3c-ccg/vc-data-model-2.0-test-suite)
+
+<!-- cargo-rdme end -->
 
 TODO
 

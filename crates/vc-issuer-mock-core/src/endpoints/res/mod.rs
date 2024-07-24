@@ -9,13 +9,24 @@ use ssi::{
     prelude::DataIntegrity,
 };
 
-type VerifiableCredentialV2 = v2::syntax::SpecializedJsonCredential<json_syntax::Object, (), ()>;
+pub(crate) type VerifiableCredentialV2 =
+    v2::syntax::SpecializedJsonCredential<json_syntax::Object, (), ()>;
+pub(crate) type VerifiableCredentialV2DataIntegrity =
+    DataIntegrity<VerifiableCredentialV2, data_integrity::AnySuite>;
 
 /// Response body of `POST /credentials/issue`.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct IssueResponse {
     /// A JSON-LD Verifiable Credential with a proof.
-    pub verifiable_credential: DataIntegrity<VerifiableCredentialV2, data_integrity::AnySuite>,
+    pub(crate) verifiable_credential: VerifiableCredentialV2DataIntegrity,
     // TODO EnvelopedVerifiableCredential
+}
+
+impl IssueResponse {
+    pub(crate) fn new(verifiable_credential: VerifiableCredentialV2DataIntegrity) -> Self {
+        Self {
+            verifiable_credential,
+        }
+    }
 }

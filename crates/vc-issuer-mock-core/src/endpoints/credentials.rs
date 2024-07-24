@@ -3,12 +3,26 @@
 //! - `POST /credentials/issue`
 
 use axum::{Extension, Json};
+use ssi::{
+    claims::{
+        data_integrity::{AnyInputOptions, AnySignatureOptions},
+        vc::v2::Credential,
+        SignatureEnvironment,
+    },
+    prelude::CryptographicSuite,
+};
 
 use crate::{
     endpoints::{
         req::IssueRequest,
-        res::{error_res::ErrorRes, success_res::SuccessRes, IssueResponse},
+        res::{
+            error_res::{custom_problem_types::CustomProblemType, ErrorRes},
+            success_res::SuccessRes,
+            IssueResponse, VerifiableCredentialV2DataIntegrity,
+        },
     },
+    vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
+    verification_method::{CustomVerificationMethodResolver, VerificationMethod},
     IssuerKeys,
 };
 
@@ -18,32 +32,90 @@ pub(crate) async fn issue(
     Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<IssueRequest>,
 ) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
-    // Set issuer from req
+    validate_issue_request(&req)?;
 
-    // Instantiate a new verification method resolver.
+    let issuer = req.credential.issuer();
+    let vm_resolver = CustomVerificationMethodResolver::new(issuer_keys.clone());
+    let vm = vm_resolver
+        .resolve(&issuer)
+        .await
+        .map_err(|problem_details| ErrorRes {
+            status: http::StatusCode::BAD_REQUEST,
+            problem_details,
+        })?;
 
-    // Check options property, and:
-    // - assert
-    //    - ProofFormat::Ldp (only supported proof format)
-    //    - assert "DataIntegrityProof" (only supported proof type)
-    // - set public_jwk (including method in header)
-    // - set cryptosuite
+    let vc = create_vc_todo_move_to_other_mod(&req, issuer_keys, &vm, &vm_resolver).await?;
+    let res = IssueResponse::new(vc);
+    Ok(SuccessRes {
+        status: http::StatusCode::CREATED,
+        body: res,
+    })
+}
 
-    // create proof
+fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
+    // credentialSubject must not be empty
+    if req.credential.credential_subjects().is_empty() {
+        return Err(ErrorRes {
+            status: http::StatusCode::BAD_REQUEST,
+            problem_details: ProblemDetails::new(
+                PredefinedProblemType::MalformedValueError,
+                "validation error (credentialSubject)".to_string(),
+                "`credentialSubject` property must not be empty.".to_string(),
+            ),
+        });
+    }
 
-    // response
+    Ok(())
+}
 
-    todo!()
+async fn create_vc_todo_move_to_other_mod(
+    req: &IssueRequest,
+    issuer_keys: IssuerKeys,
+    vm: &VerificationMethod,
+    vm_resolver: &CustomVerificationMethodResolver,
+) -> Result<VerifiableCredentialV2DataIntegrity, ProblemDetails> {
+    let suite = vm.try_to_suite()?;
+
+    let mut signature_options: AnySignatureOptions = Default::default();
+    signature_options.mandatory_pointers =
+        req.options.mandatory_pointers.clone().unwrap_or_default();
+
+    let mut vc = suite
+        .sign_with(
+            SignatureEnvironment::default(),
+            req.credential.clone(),
+            vm_resolver,
+            issuer_keys.into_local_signer(),
+            AnyInputOptions::default(),
+            signature_options,
+        )
+        .await
+        .map_err(|e| {
+            ProblemDetails::new(
+                CustomProblemType::SignatureError,
+                "signature error".to_string(),
+                format!("Failed to sign VC: {:?}", e),
+            )
+        })?;
+
+    // Move the context from proofs to the VC itself.
+    let mut contexts_to_extend = Vec::new();
+    for proof in vc.proofs.iter_mut() {
+        if let Some(proof_context) = proof.context.take() {
+            contexts_to_extend.push(proof_context);
+        }
+    }
+    for context in contexts_to_extend {
+        vc.context.extend(context);
+    }
+
+    Ok(vc)
 }
 
 #[cfg(test)]
 mod tests {
     use ssi::{
-        claims::{
-            data_integrity::TypeRef,
-            vc::v2::{Context, Credential},
-        },
-        json_ld::IriRefBuf,
+        claims::{data_integrity::TypeRef, vc::v2::Credential},
         prelude::CryptographicSuite,
         verification_methods::ProofPurpose,
     };
@@ -51,7 +123,7 @@ mod tests {
     use crate::{
         test_issuer_keys::jwk_ed25519,
         test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
-        vcdm_v2::problem_details::{self, PredefinedProblemType, ProblemType},
+        vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
     };
 
     use super::*;
@@ -92,12 +164,8 @@ mod tests {
             assert_eq!(req_cred.valid_until(), res_cred.valid_until());
 
             assert_eq!(
-                &req_cred
-                    .credential_subjects()
-                    .iter()
-                    .map(|neo| neo.as_object())
-                    .collect::<Vec<_>>(),
-                &res_cred.credential_subjects().iter().collect::<Vec<_>>()
+                &req_cred.credential_subjects(),
+                &res_cred.credential_subjects(),
             );
         }
 

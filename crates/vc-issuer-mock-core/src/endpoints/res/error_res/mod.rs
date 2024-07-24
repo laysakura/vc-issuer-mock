@@ -15,8 +15,8 @@ use serde_with::serde_as;
 use tracing::error;
 
 use crate::{
-    endpoints::res::error_res::custom_problem_types::UnknownProblemType,
-    vcdm_v2::problem_details::ProblemDetails,
+    endpoints::res::error_res::custom_problem_types::CustomProblemType,
+    vcdm_v2::problem_details::{ProblemDetails, ProblemType},
 };
 
 /// The error response body used in vc-issuer-mock family.
@@ -46,12 +46,29 @@ impl IntoResponse for ErrorRes {
     }
 }
 
+impl From<ProblemDetails> for ErrorRes {
+    fn from(problem_details: ProblemDetails) -> Self {
+        let code = problem_details.code().unwrap_or(0);
+
+        let status = if code == CustomProblemType::UnknownError.code() {
+            StatusCode::INTERNAL_SERVER_ERROR
+        } else {
+            StatusCode::BAD_REQUEST
+        };
+
+        Self {
+            status,
+            problem_details,
+        }
+    }
+}
+
 impl From<anyhow::Error> for ErrorRes {
     fn from(e: anyhow::Error) -> Self {
         error!("InternalServerError: {:?}", e);
 
         let problem_details = ProblemDetails::new(
-            UnknownProblemType,
+            CustomProblemType::UnknownError,
             "Internal Server Error".to_string(),
             e.to_string(),
         );
