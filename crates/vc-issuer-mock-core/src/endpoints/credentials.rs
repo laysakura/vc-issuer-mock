@@ -75,6 +75,8 @@ async fn create_vc_todo_move_to_other_mod(
     vm_resolver: &CustomVerificationMethodResolver,
 ) -> Result<VerifiableCredentialV2DataIntegrity, ProblemDetails> {
     let suite = vm.try_to_suite()?;
+    println!("suite: {:#?}", suite);
+    println!("vm: {:#?}", vm);
 
     let mut signature_options: AnySignatureOptions = Default::default();
     signature_options.mandatory_pointers =
@@ -121,7 +123,7 @@ mod tests {
     };
 
     use crate::{
-        test_issuer_keys::jwk_ed25519,
+        test_issuer_keys::jwk_p384,
         test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
         vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
     };
@@ -129,7 +131,7 @@ mod tests {
     use super::*;
 
     fn issuer_keys() -> Extension<IssuerKeys> {
-        Extension(jwk_ed25519())
+        Extension(jwk_p384())
     }
 
     #[tokio::test]

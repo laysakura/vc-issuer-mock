@@ -9,13 +9,11 @@ use ssi::{
     claims::vc::syntax::{IdOr, IdentifiedObject},
     dids::{AnyDidMethod, DIDResolver, VerificationMethodDIDResolver, DID},
     json_ld::iref,
-    jwk::Params,
     prelude::AnySuite,
     verification_methods::{
-        AnyMethod, Ed25519VerificationKey2020, GenericVerificationMethod,
-        InvalidVerificationMethod, MaybeJwkVerificationMethod, ReferenceOrOwned,
-        ReferenceOrOwnedRef, ResolutionOptions, VerificationMethodResolutionError,
-        VerificationMethodResolver,
+        AnyMethod, GenericVerificationMethod, InvalidVerificationMethod, JsonWebKey2020,
+        MaybeJwkVerificationMethod, ReferenceOrOwned, ReferenceOrOwnedRef, ResolutionOptions,
+        VerificationMethodResolutionError, VerificationMethodResolver,
     },
     JWK,
 };
@@ -63,7 +61,7 @@ impl VerificationMethod {
     }
 }
 
-/// Verification method resolver. Currently supports DID methods or Ed25519 key method.
+/// Verification method resolver. Currently supports DID or JWK methods.
 pub(crate) struct CustomVerificationMethodResolver {
     did_resolver: VerificationMethodDIDResolver<AnyDidMethod, AnyMethod>,
     issuer_keys: IssuerKeys,
@@ -106,7 +104,7 @@ impl CustomVerificationMethodResolver {
                 .resolve_verification_method_with(issuer, Some(method), options)
                 .await
         } else {
-            self.resolve_to_ed25519_verification_key_2020(method.id())
+            self.resolve_to_jwk2020(method.id())
         }
     }
 
@@ -136,11 +134,11 @@ impl CustomVerificationMethodResolver {
             let vm = AnyMethod::try_from(GenericVerificationMethod::from(vm))?;
             Ok(Cow::<AnyMethod>::Owned(vm))
         } else {
-            self.resolve_to_ed25519_verification_key_2020(issuer)
+            self.resolve_to_jwk2020(issuer)
         }
     }
 
-    fn resolve_to_ed25519_verification_key_2020(
+    fn resolve_to_jwk2020(
         &self,
         method_or_issuer_id: &iref::Iri,
     ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
@@ -153,30 +151,26 @@ impl CustomVerificationMethodResolver {
             })?
             .to_owned();
 
+        // Pick the first issuer key (JWK)
         let public_key = self
-                        .issuer_keys
-                        .public_keys()
-                        .iter()
-                        .find_map(|j| match &j.params {
-                            Params::OKP(p) => {
-                                if p.curve == "Ed25519" {
-                                    Some(p.try_into().unwrap())
-                                } else {
-                                    None
-                                }
-                            }
-                            _ => None,
-                        })
-                        .ok_or_else(|| {
-                            VerificationMethodResolutionError::InvalidVerificationMethod(ssi::verification_methods::InvalidVerificationMethod::UnsupportedMethodType(format!(r#"Only JWK with {{"kty":"OKP","crv":"Ed25519"}} is currently supported. Your issuer keys: {:?}"#, self.issuer_keys)))
-                        })?;
+            .issuer_keys
+            .public_keys()
+            .first()
+            .map(|jwk| *jwk)
+            .cloned()
+            .ok_or_else(|| {
+                VerificationMethodResolutionError::InvalidVerificationMethod(
+                    ssi::verification_methods::InvalidVerificationMethod::UnsupportedMethodType(
+                        "No issuer keys found".to_string(),
+                    ),
+                )
+            })?;
 
-        let vm =
-            AnyMethod::Ed25519VerificationKey2020(Ed25519VerificationKey2020::from_public_key(
-                method_or_issuer_id.to_owned(),
-                controller,
-                public_key,
-            ));
+        let vm = AnyMethod::JsonWebKey2020(JsonWebKey2020 {
+            id: method_or_issuer_id.to_owned(),
+            controller,
+            public_key: Box::new(public_key),
+        });
         Ok(Cow::Owned(vm))
     }
 }
