@@ -1,4 +1,8 @@
 //! Request parameters of VC-API endpoints.
+//! 
+//! ["3.5 Handling Unknown Options and Data"](https://w3c-ccg.github.io/vc-api/#handling-unknown-options-and-data)
+//! section says we MUST return error on unknown fields.
+//! We use #[serde(deny_unknown_fields)] to enforce this.
 
 use serde::Deserialize;
 use serde_with::serde_as;
@@ -8,7 +12,8 @@ use crate::endpoints::res::VerifiableCredentialV2;
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
 #[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+
 pub(crate) struct IssueRequest {
     /// Currently, we do not support VCDM v1.
     pub(crate) credential: VerifiableCredentialV2,
@@ -18,7 +23,7 @@ pub(crate) struct IssueRequest {
 /// `options` field in [`self::IssueRequest``].
 #[derive(Clone, Debug, Deserialize)]
 #[serde_as]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct IssueRequestOptions {
     #[serde_as(as = "Option<Vec<DisplayFromStr>>")]
     pub(crate) mandatory_pointers: Option<Vec<JsonPointerBuf>>,
