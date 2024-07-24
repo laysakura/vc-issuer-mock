@@ -2,18 +2,37 @@
 //!
 //! - `POST /credentials/issue`
 
-use axum::Json;
+use axum::{Extension, Json};
 
-use crate::endpoints::{
-    req::IssueRequest,
-    res::{error_res::ErrorRes, success_res::SuccessRes, IssueResponse},
+use crate::{
+    endpoints::{
+        req::IssueRequest,
+        res::{error_res::ErrorRes, success_res::SuccessRes, IssueResponse},
+    },
+    IssuerKeys,
 };
 
 /// `POST /credentials/issue``
 #[axum::debug_handler]
 pub(crate) async fn issue(
+    Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<IssueRequest>,
 ) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+    // Set issuer from req
+
+    // Instantiate a new verification method resolver.
+
+    // Check options property, and:
+    // - assert
+    //    - ProofFormat::Ldp (only supported proof format)
+    //    - assert "DataIntegrityProof" (only supported proof type)
+    // - set public_jwk (including method in header)
+    // - set cryptosuite
+
+    // create proof
+
+    // response
+
     todo!()
 }
 
@@ -30,18 +49,23 @@ mod tests {
     };
 
     use crate::{
+        test_issuer_keys::jwk_ed25519,
         test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
         vcdm_v2::problem_details::{self, PredefinedProblemType, ProblemType},
     };
 
     use super::*;
 
+    fn issuer_keys() -> Extension<IssuerKeys> {
+        Extension(jwk_ed25519())
+    }
+
     #[tokio::test]
     async fn test_issue_with_data_integrity_proof_success() -> anyhow::Result<()> {
         let req: IssueRequest = serde_json::from_str(README_ALUMNI)?;
         let req = Json(req);
 
-        let res = issue(req.clone()).await?;
+        let res = issue(issuer_keys(), req.clone()).await?;
         assert_eq!(res.status, 201);
 
         let req_cred = &req.0.credential;
@@ -107,7 +131,7 @@ mod tests {
         let req: IssueRequest = serde_json::from_str(req_json)?;
         let req = Json(req);
 
-        let res = issue(req.clone()).await.unwrap_err();
+        let res = issue(issuer_keys(), req.clone()).await.unwrap_err();
         assert_eq!(res.status, 400);
 
         let problem_details = &res.problem_details;

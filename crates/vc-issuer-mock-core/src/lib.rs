@@ -17,3 +17,5 @@ pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
 
 #[cfg(test)]
 pub mod test_vc_json;
+#[cfg(test)]
+pub mod test_issuer_keys;
