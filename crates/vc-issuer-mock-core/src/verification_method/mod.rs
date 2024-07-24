@@ -7,12 +7,13 @@ use std::borrow::Cow;
 
 use ssi::{
     claims::vc::syntax::{IdOr, IdentifiedObject},
-    dids::{AnyDidMethod, VerificationMethodDIDResolver},
+    dids::{AnyDidMethod, DIDResolver, VerificationMethodDIDResolver, DID},
     json_ld::iref,
     jwk::Params,
     prelude::AnySuite,
     verification_methods::{
-        AnyMethod, Ed25519VerificationKey2020, MaybeJwkVerificationMethod, ReferenceOrOwned,
+        AnyMethod, Ed25519VerificationKey2020, GenericVerificationMethod,
+        InvalidVerificationMethod, MaybeJwkVerificationMethod, ReferenceOrOwned,
         ReferenceOrOwnedRef, ResolutionOptions, VerificationMethodResolutionError,
         VerificationMethodResolver,
     },
@@ -84,32 +85,75 @@ impl CustomVerificationMethodResolver {
         issuer: &IdOr<IdentifiedObject>,
     ) -> Result<VerificationMethod, ProblemDetails> {
         let vm_method = self
-            .resolve_verification_method(Some(issuer.id().as_iri()), None)
+            .resolve_verification_method(
+                Some(issuer.id().as_iri()),
+                // これNoneだとエラーだわ
+                None,
+            )
             .await?;
         Ok(VerificationMethod(vm_method.into_owned()))
     }
-}
 
-impl VerificationMethodResolver for CustomVerificationMethodResolver {
-    type Method = AnyMethod;
-
-    // Very similar codes to the one in the [`didkit-http` crate](https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/dids.rs#L131-L183).
-    async fn resolve_verification_method_with(
+    // Similar codes to: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/dids.rs#L131-L183>.
+    async fn resolve_by_method(
         &self,
         issuer: Option<&iref::Iri>,
-        method: Option<ReferenceOrOwnedRef<'_, AnyMethod>>,
+        method: ReferenceOrOwnedRef<'_, AnyMethod>,
         options: ResolutionOptions,
     ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
-        match method {
-            Some(method) => {
-                if method.id().scheme().as_str() == "did" {
-                    self.did_resolver
-                        .resolve_verification_method_with(issuer, Some(method), options)
-                        .await
-                } else {
-                    // Not a DID scheme.
-                    // Some VCDM v2 tests use a non-DID issuer URI
-                    let ed25519_key = self
+        if method.id().scheme().as_str() == "did" {
+            self.did_resolver
+                .resolve_verification_method_with(issuer, Some(method), options)
+                .await
+        } else {
+            self.resolve_to_ed25519_verification_key_2020(method.id())
+        }
+    }
+
+    // Similar codes to: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/credentials.rs#L91-L121>
+    async fn resolve_by_issuer(
+        &self,
+        issuer: &iref::Iri,
+    ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
+        if let Ok(did) = DID::new(issuer) {
+            let output = self.did_resolver.resolve(did).await.map_err(|e| {
+                VerificationMethodResolutionError::InternalError(format!(
+                    "Could not fetch issuer DID document `{}`: {:?}",
+                    did, e
+                ))
+            })?;
+
+            let vm = output
+                .document
+                .into_document()
+                .into_any_verification_method()
+                .ok_or_else(|| {
+                    VerificationMethodResolutionError::InternalError(
+                        "Could not get any verification method for issuer DID document".to_string(),
+                    )
+                })?;
+
+            let vm = AnyMethod::try_from(GenericVerificationMethod::from(vm))?;
+            Ok(Cow::<AnyMethod>::Owned(vm))
+        } else {
+            self.resolve_to_ed25519_verification_key_2020(issuer)
+        }
+    }
+
+    fn resolve_to_ed25519_verification_key_2020(
+        &self,
+        method_or_issuer_id: &iref::Iri,
+    ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
+        let controller = method_or_issuer_id
+            .as_uri()
+            .ok_or_else(|| {
+                VerificationMethodResolutionError::InvalidVerificationMethod(
+                    InvalidVerificationMethod::InvalidIri(method_or_issuer_id.to_string()),
+                )
+            })?
+            .to_owned();
+
+        let public_key = self
                         .issuer_keys
                         .public_keys()
                         .iter()
@@ -126,17 +170,33 @@ impl VerificationMethodResolver for CustomVerificationMethodResolver {
                         .ok_or_else(|| {
                             VerificationMethodResolutionError::InvalidVerificationMethod(ssi::verification_methods::InvalidVerificationMethod::UnsupportedMethodType(format!(r#"Only JWK with {{"kty":"OKP","crv":"Ed25519"}} is currently supported. Your issuer keys: {:?}"#, self.issuer_keys)))
                         })?;
-                    let key = AnyMethod::Ed25519VerificationKey2020(
-                        Ed25519VerificationKey2020::from_public_key(
-                            method.id().to_owned(),
-                            method.id().as_uri().unwrap().to_owned(),
-                            ed25519_key,
-                        ),
-                    );
-                    Ok(Cow::Owned(key))
-                }
-            }
-            None => Err(VerificationMethodResolutionError::MissingVerificationMethod),
+
+        let vm =
+            AnyMethod::Ed25519VerificationKey2020(Ed25519VerificationKey2020::from_public_key(
+                method_or_issuer_id.to_owned(),
+                controller,
+                public_key,
+            ));
+        Ok(Cow::Owned(vm))
+    }
+}
+
+impl VerificationMethodResolver for CustomVerificationMethodResolver {
+    type Method = AnyMethod;
+
+    // Similar codes to:
+    // - <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/dids.rs#L131-L183>.
+    // - <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/credentials.rs#L91-L121>
+    async fn resolve_verification_method_with(
+        &self,
+        issuer: Option<&iref::Iri>,
+        method: Option<ReferenceOrOwnedRef<'_, AnyMethod>>,
+        options: ResolutionOptions,
+    ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
+        match (method, issuer) {
+            (Some(method), _) => self.resolve_by_method(issuer, method, options).await,
+            (None, Some(issuer)) => self.resolve_by_issuer(issuer).await,
+            (None, None) => Err(VerificationMethodResolutionError::MissingVerificationMethod),
         }
     }
 }
