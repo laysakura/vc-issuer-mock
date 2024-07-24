@@ -1,14 +1,18 @@
 #![doc = include_str!("../README.md")]
 
+pub mod issuer_keys;
+pub use issuer_keys::IssuerKeys;
+
 pub(crate) mod endpoints;
 pub(crate) mod vcdm_v2;
 
-use axum::{routing::post, Router};
+use axum::{routing::post, Extension, Router};
 
 /// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
-///
-pub fn vc_api_router() -> Router {
-    Router::new().route("/credentials/issue", post(endpoints::credentials::issue))
+pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
+    Router::new()
+        .route("/credentials/issue", post(endpoints::credentials::issue))
+        .layer(Extension(issuer_keys))
 }
 
 #[cfg(test)]
