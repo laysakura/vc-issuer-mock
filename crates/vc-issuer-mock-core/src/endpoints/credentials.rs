@@ -2,6 +2,7 @@
 //!
 //! - `POST /credentials/issue`
 
+use anyhow::anyhow;
 use axum::{Extension, Json};
 use ssi::{
     claims::{
@@ -16,9 +17,8 @@ use crate::{
     endpoints::{
         req::IssueRequest,
         res::{
-            error_res::{custom_problem_types::CustomProblemType, ErrorRes},
-            success_res::SuccessRes,
-            IssueResponse, VerifiableCredentialV2DataIntegrity,
+            error_res::ErrorRes, success_res::SuccessRes, IssueResponse,
+            VerifiableCredentialV2DataIntegrity,
         },
     },
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
@@ -61,6 +61,7 @@ fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
                 PredefinedProblemType::MalformedValueError,
                 "validation error (credentialSubject)".to_string(),
                 "`credentialSubject` property must not be empty.".to_string(),
+                anyhow!("`credentialSubject` property must not be empty."),
             ),
         });
     }
@@ -91,14 +92,7 @@ async fn create_vc_todo_move_to_other_mod(
             AnyInputOptions::default(),
             signature_options,
         )
-        .await
-        .map_err(|e| {
-            ProblemDetails::new(
-                CustomProblemType::SignatureError,
-                "signature error".to_string(),
-                format!("Failed to sign VC: {:?}", e),
-            )
-        })?;
+        .await?;
 
     // Move the context from proofs to the VC itself.
     let mut contexts_to_extend = Vec::new();

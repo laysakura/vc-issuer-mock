@@ -1,18 +1,19 @@
-use std::fmt;
+use std::{error::Error as StdError, fmt};
 
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
 use ssi::{
-    claims::data_integrity::InvalidCryptosuiteString,
+    claims::{data_integrity::InvalidCryptosuiteString, SignatureError},
     verification_methods::VerificationMethodResolutionError,
 };
-use thiserror::Error;
 
 use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
 
 /// [Problem Details](https://www.w3.org/TR/vc-data-model-2.0/#problem-details).
+///
+/// It requires `anyhow::Error` as a cause to provide backtrace information.
 #[serde_as]
-#[derive(Debug, Error, Serialize)]
+#[derive(Debug, Serialize)]
 pub(crate) struct ProblemDetails {
     #[serde(rename = "type")]
     #[serde_as(as = "DisplayFromStr")]
@@ -23,16 +24,25 @@ pub(crate) struct ProblemDetails {
 
     pub(crate) title: String,
     pub(crate) detail: String,
+
+    #[serde(skip)]
+    cause: anyhow::Error,
 }
 
 impl ProblemDetails {
-    pub(crate) fn new<T: ProblemType>(problem_type: T, title: String, detail: String) -> Self {
+    pub(crate) fn new<T: ProblemType>(
+        problem_type: T,
+        title: String,
+        detail: String,
+        cause: anyhow::Error,
+    ) -> Self {
         let code = problem_type.code();
         Self {
             problem_type: Box::new(problem_type),
             code: Some(code),
             title,
             detail,
+            cause,
         }
     }
 
@@ -60,12 +70,19 @@ impl fmt::Display for ProblemDetails {
     }
 }
 
+impl StdError for ProblemDetails {
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        self.cause.source()
+    }
+}
+
 impl From<VerificationMethodResolutionError> for ProblemDetails {
     fn from(e: VerificationMethodResolutionError) -> Self {
         ProblemDetails::new(
             CustomProblemType::VerificationMethodResolutionError,
             "verification method resolution error".to_string(),
-            e.to_string(),
+            format!("{:?}", e),
+            e.into(),
         )
     }
 }
@@ -75,7 +92,19 @@ impl From<InvalidCryptosuiteString> for ProblemDetails {
         ProblemDetails::new(
             CustomProblemType::InvalidCryptosuiteError,
             "invalid cryptosuite error".to_string(),
-            e.to_string(),
+            format!("{:?}", e),
+            e.into(),
+        )
+    }
+}
+
+impl From<SignatureError> for ProblemDetails {
+    fn from(e: SignatureError) -> Self {
+        ProblemDetails::new(
+            CustomProblemType::SignatureError,
+            "signature error".to_string(),
+            format!("failed to sign VC: {:?}", e),
+            e.into(),
         )
     }
 }
@@ -129,6 +158,8 @@ impl fmt::Display for PredefinedProblemType {
 
 #[cfg(test)]
 mod tests {
+    use anyhow::anyhow;
+
     use crate::test_tracing::init_tracing;
 
     use super::*;
@@ -141,6 +172,7 @@ mod tests {
             PredefinedProblemType::ParsingError,
             "Parsing Error".to_string(),
             "Failed to parse the request body.".to_string(),
+            anyhow!("NOT SERIALIZED"),
         );
         let json = serde_json::to_string(&problem).expect("Failed to serialize ProblemDetails");
         assert_eq!(
@@ -157,6 +189,7 @@ mod tests {
             PredefinedProblemType::CryptographicSecurityError,
             "Cryptographic Security Error".to_string(),
             "Failed to verify the cryptographic proof.".to_string(),
+            anyhow!("NOT SERIALIZED"),
         );
         let json = serde_json::to_string(&problem).expect("Failed to serialize ProblemDetails");
         assert_eq!(
@@ -173,6 +206,7 @@ mod tests {
             PredefinedProblemType::MalformedValueError,
             "Malformed Value Error".to_string(),
             "The request body contains a malformed value.".to_string(),
+            anyhow!("NOT SERIALIZED"),
         );
         let json = serde_json::to_string(&problem).expect("Failed to serialize ProblemDetails");
         assert_eq!(
@@ -189,6 +223,7 @@ mod tests {
             PredefinedProblemType::RangeError,
             "Range Error".to_string(),
             "The request body contains a value out of range.".to_string(),
+            anyhow!("NOT SERIALIZED"),
         );
         let json = serde_json::to_string(&problem).expect("Failed to serialize ProblemDetails");
         assert_eq!(

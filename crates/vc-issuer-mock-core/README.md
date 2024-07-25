@@ -18,6 +18,14 @@ This crate is tested against the following test suites:
 
 - [vc-data-model-2.0-test-suite](https://github.com/w3c-ccg/vc-data-model-2.0-test-suite)
 
+## Development
+
+### Error handling
+
+Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requires `anyhow::Error` as a cause, `ProblemDetail` helps to add backtraces to some errors defined in other crates.
+
+Use `Result<T, ErrorRes>` for API handler functions.
+
 <!-- cargo-rdme end -->
 
 TODO

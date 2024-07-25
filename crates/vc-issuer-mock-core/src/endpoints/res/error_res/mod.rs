@@ -12,7 +12,7 @@ use http::StatusCode;
 use serde::Serialize;
 use serde_with::serde_as;
 use thiserror::Error;
-use tracing::error;
+use tracing::{debug, error};
 
 use crate::{
     endpoints::res::error_res::custom_problem_types::CustomProblemType,
@@ -49,8 +49,10 @@ impl From<ProblemDetails> for ErrorRes {
         let code = problem_details.code().unwrap_or(0);
 
         let status = if code == CustomProblemType::UnknownError.code() {
+            error!("InternalServerError: {:?}", problem_details);
             StatusCode::INTERNAL_SERVER_ERROR
         } else {
+            debug!("BadRequest: {:?}", problem_details);
             StatusCode::BAD_REQUEST
         };
 
@@ -69,6 +71,7 @@ impl From<anyhow::Error> for ErrorRes {
             CustomProblemType::UnknownError,
             "Internal Server Error".to_string(),
             e.to_string(),
+            e,
         );
         ErrorRes {
             status: StatusCode::INTERNAL_SERVER_ERROR,

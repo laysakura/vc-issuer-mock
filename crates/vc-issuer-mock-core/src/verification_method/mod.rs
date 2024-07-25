@@ -5,6 +5,7 @@
 
 use std::borrow::Cow;
 
+use anyhow::anyhow;
 use ssi::{
     claims::vc::syntax::{IdOr, IdentifiedObject},
     dids::{AnyDidMethod, DIDResolver, VerificationMethodDIDResolver, DID},
@@ -36,7 +37,8 @@ impl VerificationMethod {
                 ProblemDetails::new(
                     CustomProblemType::VerificationMethodResolutionError,
                     "verification method resolution error".to_string(),
-                    format!(
+                    "resolved verification method cannot converted into JWK".to_string(),
+                    anyhow!(
                         "The resolved verification method cannot converted into JWK: {:?}",
                         self.0
                     ),
@@ -52,7 +54,8 @@ impl VerificationMethod {
             ProblemDetails::new(
                 CustomProblemType::InvalidCryptosuiteError,
                 "invalid cryptosuite error".to_string(),
-                format!(
+                "The resolved verification method cannot be used to select a cryptographic suite".to_string(),
+                anyhow!(
                     "The resolved verification method cannot be used to select a cryptographic suite: {:?}",
                     self.0
                 ),
