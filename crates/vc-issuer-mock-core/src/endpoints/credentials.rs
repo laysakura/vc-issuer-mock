@@ -44,7 +44,7 @@ pub(crate) async fn issue(
             problem_details,
         })?;
 
-    let vc = create_vc_todo_move_to_other_mod(&req, issuer_keys, &vm, &vm_resolver).await?;
+    let vc = create_vc_with_data_integrity(&req, issuer_keys, &vm, &vm_resolver).await?;
     let res = IssueResponse::new(vc);
     Ok(SuccessRes {
         status: http::StatusCode::CREATED,
@@ -69,7 +69,7 @@ fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
     Ok(())
 }
 
-async fn create_vc_todo_move_to_other_mod(
+async fn create_vc_with_data_integrity(
     req: &IssueRequest,
     issuer_keys: IssuerKeys,
     vm: &VerificationMethod,
