@@ -29,6 +29,7 @@ ssi = { git = "https://github.com/spruceid/ssi.git", rev = "46d89d2", features =
 ] }
 tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
 
 [workspace.metadata.release]
 sign-tag = true

@@ -75,8 +75,8 @@ async fn create_vc_todo_move_to_other_mod(
     vm_resolver: &CustomVerificationMethodResolver,
 ) -> Result<VerifiableCredentialV2DataIntegrity, ProblemDetails> {
     let suite = vm.try_to_suite()?;
-    println!("suite: {:#?}", suite);
-    println!("vm: {:#?}", vm);
+    tracing::debug!("suite: {:#?}", suite);
+    tracing::debug!("vm: {:#?}", vm);
 
     let mut signature_options: AnySignatureOptions = Default::default();
     signature_options.mandatory_pointers =
@@ -124,6 +124,7 @@ mod tests {
 
     use crate::{
         test_issuer_keys::jwk_p384,
+        test_tracing::init_tracing,
         test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
         vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
     };
@@ -136,6 +137,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_issue_with_data_integrity_proof_success() -> anyhow::Result<()> {
+        init_tracing();
+
         let req: IssueRequest = serde_json::from_str(README_ALUMNI)?;
         let req = Json(req);
 
