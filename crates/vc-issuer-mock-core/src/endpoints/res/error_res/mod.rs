@@ -3,7 +3,6 @@
 pub(crate) mod custom_problem_types;
 
 use core::fmt;
-use std::error::Error;
 
 use axum::{
     response::{IntoResponse, Response},
@@ -12,6 +11,7 @@ use axum::{
 use http::StatusCode;
 use serde::Serialize;
 use serde_with::serde_as;
+use thiserror::Error;
 use tracing::error;
 
 use crate::{
@@ -21,14 +21,12 @@ use crate::{
 
 /// The error response body used in vc-issuer-mock family.
 #[serde_as]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Error, Serialize)]
 pub(crate) struct ErrorRes {
     #[serde_as(as = "serde_with::FromInto<u16>")]
     pub(crate) status: StatusCode,
     pub(crate) problem_details: ProblemDetails,
 }
-
-impl Error for ErrorRes {}
 
 impl fmt::Display for ErrorRes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

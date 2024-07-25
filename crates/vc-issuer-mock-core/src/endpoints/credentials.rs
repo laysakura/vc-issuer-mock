@@ -201,6 +201,8 @@ mod tests {
     }
 
     async fn assert_issue_parsing_error(req_json: &str, code: i32) -> anyhow::Result<()> {
+        init_tracing();
+
         let req: IssueRequest = serde_json::from_str(req_json)?;
         let req = Json(req);
 

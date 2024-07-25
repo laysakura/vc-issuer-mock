@@ -6,12 +6,13 @@ use ssi::{
     claims::data_integrity::InvalidCryptosuiteString,
     verification_methods::VerificationMethodResolutionError,
 };
+use thiserror::Error;
 
 use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
 
 /// [Problem Details](https://www.w3.org/TR/vc-data-model-2.0/#problem-details).
 #[serde_as]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Error, Serialize)]
 pub(crate) struct ProblemDetails {
     #[serde(rename = "type")]
     #[serde_as(as = "DisplayFromStr")]
@@ -128,10 +129,14 @@ impl fmt::Display for PredefinedProblemType {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_tracing::init_tracing;
+
     use super::*;
 
     #[test]
     fn test_serialize_problem_details_parsing_error() {
+        init_tracing();
+
         let problem = ProblemDetails::new(
             PredefinedProblemType::ParsingError,
             "Parsing Error".to_string(),
@@ -146,6 +151,8 @@ mod tests {
 
     #[test]
     fn test_serialize_problem_details_cryptographic_security_error() {
+        init_tracing();
+
         let problem = ProblemDetails::new(
             PredefinedProblemType::CryptographicSecurityError,
             "Cryptographic Security Error".to_string(),
@@ -160,6 +167,8 @@ mod tests {
 
     #[test]
     fn test_serialize_problem_details_malformed_value_error() {
+        init_tracing();
+
         let problem = ProblemDetails::new(
             PredefinedProblemType::MalformedValueError,
             "Malformed Value Error".to_string(),
@@ -174,6 +183,8 @@ mod tests {
 
     #[test]
     fn test_serialize_problem_details_range_error() {
+        init_tracing();
+
         let problem = ProblemDetails::new(
             PredefinedProblemType::RangeError,
             "Range Error".to_string(),

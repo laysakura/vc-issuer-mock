@@ -1,5 +1,5 @@
 //! Request parameters of VC-API endpoints.
-//! 
+//!
 //! ["3.5 Handling Unknown Options and Data"](https://w3c-ccg.github.io/vc-api/#handling-unknown-options-and-data)
 //! section says we MUST return error on unknown fields.
 //! We use #[serde(deny_unknown_fields)] to enforce this.
@@ -33,12 +33,17 @@ pub(crate) struct IssueRequestOptions {
 #[cfg(test)]
 mod tests {
 
-    use crate::test_vc_json::{vc_data_model_2_0_test_suite, vc_issuer_api_openapi_spec};
+    use crate::{
+        test_tracing::init_tracing,
+        test_vc_json::{vc_data_model_2_0_test_suite, vc_issuer_api_openapi_spec},
+    };
 
     use super::*;
 
     #[test]
     fn test_deserialize_issue_request() {
+        init_tracing();
+
         let readme_alumni: IssueRequest =
             serde_json::from_str(vc_data_model_2_0_test_suite::README_ALUMNI)
                 .expect("Failed to deserialize vc_data_model_2_0_test_suite::README_ALUMNI");
