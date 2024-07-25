@@ -76,8 +76,6 @@ async fn create_vc_todo_move_to_other_mod(
     vm_resolver: &CustomVerificationMethodResolver,
 ) -> Result<VerifiableCredentialV2DataIntegrity, ProblemDetails> {
     let suite = vm.try_to_suite()?;
-    tracing::debug!("suite: {:#?}", suite);
-    tracing::debug!("vm: {:#?}", vm);
 
     let mut signature_options: AnySignatureOptions = Default::default();
     signature_options.mandatory_pointers =
