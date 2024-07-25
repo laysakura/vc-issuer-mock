@@ -14,6 +14,7 @@ use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
 /// It requires `anyhow::Error` as a cause to provide backtrace information.
 #[serde_as]
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ProblemDetails {
     #[serde(rename = "type")]
     #[serde_as(as = "DisplayFromStr")]

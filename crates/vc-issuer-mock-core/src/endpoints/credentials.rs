@@ -3,7 +3,7 @@
 //! - `POST /credentials/issue`
 
 use anyhow::anyhow;
-use axum::{Extension, Json};
+use axum::Extension;
 use ssi::{
     claims::{
         data_integrity::{AnyInputOptions, AnySignatureOptions},
@@ -15,7 +15,7 @@ use ssi::{
 
 use crate::{
     endpoints::{
-        req::IssueRequest,
+        req::{json_req::JsonReq, IssueRequest},
         res::{
             error_res::ErrorRes, success_res::SuccessRes, IssueResponse,
             VerifiableCredentialV2DataIntegrity,
@@ -30,7 +30,7 @@ use crate::{
 #[axum::debug_handler]
 pub(crate) async fn issue(
     Extension(issuer_keys): Extension<IssuerKeys>,
-    Json(req): Json<IssueRequest>,
+    JsonReq(req): JsonReq<IssueRequest>,
 ) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
     validate_issue_request(&req)?;
 
@@ -122,7 +122,7 @@ mod tests {
         init_tracing();
 
         let req: IssueRequest = serde_json::from_str(README_ALUMNI)?;
-        let req = Json(req);
+        let req = JsonReq(req);
 
         let res = issue(issuer_keys(), req.clone()).await?;
         assert_eq!(res.status, 201);
@@ -174,11 +174,11 @@ mod tests {
         Ok(())
     }
 
-    async fn assert_issue_parsing_error(req_json: &str, code: i32) -> anyhow::Result<()> {
+    async fn assert_issue_error(req_json: &str, code: i32) -> anyhow::Result<()> {
         init_tracing();
 
         let req: IssueRequest = serde_json::from_str(req_json)?;
-        let req = Json(req);
+        let req = JsonReq(req);
 
         let res = issue(issuer_keys(), req.clone()).await.unwrap_err();
         assert_eq!(res.status, 400);
@@ -190,14 +190,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_issue_parsing_error() -> anyhow::Result<()> {
-        assert_issue_parsing_error("{INVALID JSON}", PredefinedProblemType::ParsingError.code())
-            .await
-    }
-
-    #[tokio::test]
     async fn test_issue_malformed_value_error_context_unexpected_url() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -225,7 +219,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_issue_malformed_value_error_context_not_url() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -256,7 +250,7 @@ mod tests {
     /// > If present, the value of the id property MUST be a single URL, which MAY be dereferenceable.
     #[tokio::test]
     async fn test_issue_malformed_value_error_id_not_url() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -288,7 +282,7 @@ mod tests {
     /// > The value of the type property MUST be one or more terms and/or...
     #[tokio::test]
     async fn test_issue_malformed_value_error_empty_type() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -320,7 +314,7 @@ mod tests {
     /// > The value of the issuer property MUST be either a URL, or an object containing an id property whose value is a URL;
     #[tokio::test]
     async fn test_issue_malformed_value_error_issuer_not_url() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -350,7 +344,7 @@ mod tests {
     /// Date and time should be separated by `T` instead of a space.
     #[tokio::test]
     async fn test_issue_malformed_value_error_valid_from_invalid() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -380,7 +374,7 @@ mod tests {
     /// Date and time should be separated by `T` instead of a space.
     #[tokio::test]
     async fn test_issue_malformed_value_error_valid_until_invalid() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {
@@ -409,7 +403,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_issue_malformed_value_error_credential_subject_empty() -> anyhow::Result<()> {
-        assert_issue_parsing_error(
+        assert_issue_error(
             r#"
 {
   "credential": {

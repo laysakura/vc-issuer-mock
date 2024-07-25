@@ -4,6 +4,8 @@
 //! section says we MUST return error on unknown fields.
 //! We use #[serde(deny_unknown_fields)] to enforce this.
 
+pub(crate) mod json_req;
+
 use serde::Deserialize;
 use serde_with::serde_as;
 use ssi::claims::data_integrity::JsonPointerBuf;

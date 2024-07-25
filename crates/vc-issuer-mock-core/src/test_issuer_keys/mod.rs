@@ -17,6 +17,7 @@ const JWK_P384: &str = r#"{
 pub fn jwk_p384() -> IssuerKeys {
     IssuerKeys::new(vec![JWK_P384])
 }
+
 const JWK_ED25519: &str = r#"{"kty":"OKP","crv":"Ed25519","d":"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A","x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}"#;
 
 /// <https://datatracker.ietf.org/doc/html/rfc8037#appendix-A.1>
