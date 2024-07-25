@@ -86,7 +86,7 @@ async fn create_vc_todo_move_to_other_mod(
         vm.as_any_method().clone(),
     ));
 
-    let mut vc = suite
+    let vc = suite
         .sign_with(
             SignatureEnvironment::default(),
             req.credential.clone(),
@@ -97,27 +97,12 @@ async fn create_vc_todo_move_to_other_mod(
         )
         .await?;
 
-    // Move the context from proofs to the VC itself.
-    let mut contexts_to_extend = Vec::new();
-    for proof in vc.proofs.iter_mut() {
-        if let Some(proof_context) = proof.context.take() {
-            contexts_to_extend.push(proof_context);
-        }
-    }
-    for context in contexts_to_extend {
-        vc.context.extend(context);
-    }
-
     Ok(vc)
 }
 
 #[cfg(test)]
 mod tests {
-    use ssi::{
-        claims::{data_integrity::TypeRef, vc::v2::Credential},
-        prelude::CryptographicSuite,
-        verification_methods::ProofPurpose,
-    };
+    use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
         test_issuer_keys::jwk_p384,
@@ -179,17 +164,9 @@ mod tests {
             let proof = proofs[0];
 
             // type
-            assert!(matches!(
-                proof.type_.type_(),
-                TypeRef::DataIntegrityProof(_)
-            ));
+            assert_eq!(format!("{:?}", proof.type_), "JsonWebSignature2020");
             // proofPurpose
             assert!(matches!(proof.proof_purpose, ProofPurpose::Assertion));
-            // cryptosuite
-            assert!(matches!(
-                proof.suite().type_(),
-                TypeRef::DataIntegrityProof(_) // we do not assert the value of the cryptosuite itself
-            ));
             // proofValue
             assert!(proof.signature.as_ref().len() > 0);
         }
