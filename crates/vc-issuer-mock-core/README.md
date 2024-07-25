@@ -26,6 +26,8 @@ Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requi
 
 Use `Result<T, ErrorRes>` for API handler functions.
 
+`ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
+
 <!-- cargo-rdme end -->
 
 TODO
