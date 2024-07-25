@@ -83,13 +83,18 @@ async fn create_vc_todo_move_to_other_mod(
     signature_options.mandatory_pointers =
         req.options.mandatory_pointers.clone().unwrap_or_default();
 
+    let mut proof_options = AnyInputOptions::default();
+    proof_options.verification_method = Some(ssi::verification_methods::ReferenceOrOwned::Owned(
+        vm.as_any_method().clone(),
+    ));
+
     let mut vc = suite
         .sign_with(
             SignatureEnvironment::default(),
             req.credential.clone(),
             vm_resolver,
             issuer_keys.into_local_signer(),
-            AnyInputOptions::default(),
+            proof_options,
             signature_options,
         )
         .await?;
