@@ -1,6 +1,6 @@
 // Before running the tests, you can specify a BASE_URL, such as
 // BASE_URL=http://localhost:40443/zDdfsdfs npm test
-const baseUrl = process.env.BASE_URL || "http://localhost:40080/id";
+const baseUrl = process.env.BASE_URL || "http://localhost:40080";
 
 module.exports = {
   settings: {},

@@ -1,6 +1,7 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use tokio::net::TcpListener;
+use tower_http::trace::TraceLayer;
 use tracing::info;
 use vc_issuer_mock_core::IssuerKeys;
 
@@ -11,7 +12,7 @@ async fn main() {
         .init();
 
     let issuer_keys = IssuerKeys::default();
-    let app = vc_issuer_mock_core::vc_api_router(issuer_keys);
+    let app = vc_issuer_mock_core::vc_api_router(issuer_keys).layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 40080);
     let listener = TcpListener::bind(&addr)

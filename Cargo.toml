@@ -33,6 +33,7 @@ ssi = { path = "../../spruceid/ssi", features = ["secp384r1", "bbs"] }
 thiserror = "1.0.63"
 tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
 tower = "0.4.13"
+tower-http = { version = "0.5.2", features = ["trace"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.16"
 

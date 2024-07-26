@@ -13,7 +13,7 @@ rust-version.workspace = true
 edition.workspace = true
 
 [features]
-bin = ["dep:tokio", "dep:tracing-subscriber"]
+bin = ["dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
 
 [[bin]]
 name = "vc-issuer-mock-core"
@@ -35,6 +35,7 @@ thiserror.workspace = true
 tracing.workspace = true
 
 tokio = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true}
 tracing-subscriber = { workspace = true, optional = true }
 
 [dev-dependencies]

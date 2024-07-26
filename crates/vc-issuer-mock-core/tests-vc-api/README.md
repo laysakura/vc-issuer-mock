@@ -8,7 +8,9 @@ Run test target:
 
 ```console
 cd ../
-cargo run
+export RUST_LOG=debug
+export RUST_BACKTRACE=1  # might be too noisy
+cargo run --bin vc-issuer-mock-core --features="bin"
 ```
 
 Setup tests:
