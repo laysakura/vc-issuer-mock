@@ -28,6 +28,7 @@ mod tests {
     use crate::{
         test_issuer_keys::issuer_keys_with_ec_p384,
         test_tracing::init_tracing,
+        test_vc_json::vc_data_model_2_0_test_suite::CREDENTIAL_OK,
         vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
     };
 
@@ -41,13 +42,12 @@ mod tests {
     use serde_json::Value;
     use tower::ServiceExt;
 
-    /// Although most of the tests to API endpoints should be done in `crate::endpoints`,
-    /// tests in `crate::endpoints` require JSON serialization before calling endpoints.
-    /// Thus, to test the responses of serialization-related errors, we need to test here.
-    async fn test_issue_req_serialize_error<T: ProblemType>(
-        req_body: &'static str,
-        expected_problem_type: T,
-    ) {
+    /// Call POST /credentials/issue with the given request body.
+    /// Returns the response body as `serde_json::Value`.
+    ///
+    /// Returned response can be either of [`IssueResponse`](crate::endpoints::res::IssueResponse) or
+    /// [`ErrorRes`](crate::endpoints::res::error_res::ErrorRes).
+    async fn issue(req_body: &str) -> Value {
         init_tracing();
 
         let issuer_keys = issuer_keys_with_ec_p384();
@@ -57,7 +57,7 @@ mod tests {
             .method("POST")
             .uri("/credentials/issue")
             .header("content-type", "application/json")
-            .body(Body::from(req_body))
+            .body(Body::from(req_body.to_string()))
             .unwrap();
 
         let res = app.oneshot(req).await.unwrap();
@@ -66,9 +66,48 @@ mod tests {
             .await
             .unwrap();
 
-        // `ErrorRes` does not have `Deserialize` implemented, so we need to parse the JSON manually.
         let body_str = String::from_utf8(body.to_vec()).unwrap();
-        let json: Value = serde_json::from_str(&body_str).unwrap();
+        serde_json::from_str(&body_str).unwrap()
+    }
+
+    #[tokio::test]
+    async fn test_issue_success() {
+        let json = issue(CREDENTIAL_OK).await;
+
+        let context = json["@context"]
+            .as_array()
+            .expect("@context should be an array")
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(context, vec!["https://www.w3.org/ns/credentials/v2"]);
+
+        let r#type = json["type"]
+            .as_array()
+            .expect("type should be an array")
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(r#type, vec!["VerifiableCredential"]);
+
+        let credential_subject = json["credentialSubject"]
+            .as_object()
+            .expect("credentialSubject should be an object");
+        assert_eq!(credential_subject["id"], "did:example:subject");
+
+        let _proof = json["proof"]
+            .as_object()
+            .expect("proof should be an object");
+    }
+
+    /// Although most of the tests to API endpoints should be done in `crate::endpoints`,
+    /// tests in `crate::endpoints` require JSON serialization before calling endpoints.
+    /// Thus, to test the responses of serialization-related errors, we need to test here.
+    async fn test_issue_req_serialize_error<T: ProblemType>(
+        req_body: &'static str,
+        expected_problem_type: T,
+    ) {
+        let json = issue(req_body).await;
 
         let status = json["status"].as_i64().unwrap();
         assert_eq!(status, 400);
