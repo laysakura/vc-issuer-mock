@@ -1,10 +1,10 @@
 #[cfg(feature = "bin")]
-pub mod log_req_body;
+pub mod log_req_res_body;
 
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use axum::middleware;
-use log_req_body::log_req_body;
+use log_req_res_body::log_req_res_body;
 use tokio::net::TcpListener;
 use tracing::info;
 use vc_issuer_mock_core::IssuerKeys;
@@ -18,7 +18,7 @@ async fn main() {
     let issuer_keys = IssuerKeys::default();
     let app = vc_issuer_mock_core::vc_api_router(issuer_keys)
         // log req/res body and latency
-        .layer(middleware::from_fn(log_req_body));
+        .layer(middleware::from_fn(log_req_res_body));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 40080);
     let listener = TcpListener::bind(&addr)
