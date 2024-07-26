@@ -61,6 +61,11 @@ mod tests {
 
         let res = app.oneshot(req).await.unwrap();
 
+        assert_eq!(
+            res.headers().get("content-type").unwrap(),
+            "application/json"
+        );
+
         let body = to_bytes(res.into_response().into_body(), usize::MAX)
             .await
             .unwrap();
