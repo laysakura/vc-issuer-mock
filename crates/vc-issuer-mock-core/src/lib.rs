@@ -61,6 +61,8 @@ mod tests {
 
         let res = app.oneshot(req).await.unwrap();
 
+        // <https://w3c-ccg.github.io/vc-api/#content-serialization>
+        // > ... and include the Content-Type header with a media type value of application/json.
         assert_eq!(
             res.headers().get("content-type").unwrap(),
             "application/json"
