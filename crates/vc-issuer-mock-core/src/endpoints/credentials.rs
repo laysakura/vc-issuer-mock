@@ -53,15 +53,18 @@ pub(crate) async fn issue(
 }
 
 fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
-    // credentialSubject must not be empty
-    if req.credential.credential_subjects().is_empty() {
+    // <https://www.w3.org/TR/vc-data-model-2.0/#credential-subject>
+    // > A verifiable credential contains claims about one or more subjects.
+    let sub = req.credential.credential_subjects();
+    if sub.is_empty() || sub.iter().any(|s| s.is_empty()) {
         return Err(ErrorRes {
             status: http::StatusCode::BAD_REQUEST,
             problem_details: ProblemDetails::new(
                 PredefinedProblemType::MalformedValueError,
                 "validation error (credentialSubject)".to_string(),
-                "`credentialSubject` property must not be empty.".to_string(),
-                anyhow!("`credentialSubject` property must not be empty."),
+                "`credentialSubject` property, or any of its element, must not be empty."
+                    .to_string(),
+                anyhow!("`credentialSubject` property, or any of its element,  must not be empty."),
             ),
         });
     }
@@ -105,27 +108,30 @@ mod tests {
     use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
-        
         test_tracing::init_tracing,
-        test_vc_json::vc_data_model_2_0_test_suite::{CREDENTIAL_OK, README_ALUMNI},
+        test_vc_json::vc_data_model_2_0_test_suite::{
+            CREDENTIAL_OK, CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL, README_ALUMNI,
+        },
+        vcdm_v2::problem_details::ProblemType as _,
     };
 
     use super::*;
 
-    fn issuer_keys() -> Extension<IssuerKeys> {
-        Extension(IssuerKeys::default())
+    async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+        init_tracing();
+
+        let issuer_keys = Extension(IssuerKeys::default());
+        let req = JsonReq(req);
+        issue(issuer_keys, req.clone()).await
     }
 
     async fn assert_issue_with_data_integrity_proof_success(req: &str) -> anyhow::Result<()> {
-        init_tracing();
-
         let req: IssueRequest = serde_json::from_str(req)?;
-        let req = JsonReq(req);
 
-        let res = issue(issuer_keys(), req.clone()).await?;
+        let res = issue_(req.clone()).await?;
         assert_eq!(res.status, 201);
 
-        let req_cred = &req.0.credential;
+        let req_cred = &req.credential;
         let res_cred = &res.body.verifiable_credential;
 
         // Other than `proof`, the response properties should be the same as the request.
@@ -180,5 +186,21 @@ mod tests {
     #[tokio::test]
     async fn test_issue_with_data_integrity_proof_success_credential_ok() -> anyhow::Result<()> {
         assert_issue_with_data_integrity_proof_success(CREDENTIAL_OK).await
+    }
+
+    #[tokio::test]
+    async fn test_issue_with_data_integrity_proof_error_empty_credential_subject() ->anyhow::Result<()>{
+        let req: IssueRequest = serde_json::from_str(CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL)?;
+
+        let error_res = issue_(req).await.unwrap_err();
+        assert_eq!(error_res.status, http::StatusCode::BAD_REQUEST);
+
+        let problem_details = error_res.problem_details;
+        assert_eq!(
+            problem_details.code().unwrap(),
+            PredefinedProblemType::MalformedValueError.code()
+        );
+
+        Ok(())
     }
 }

@@ -38,6 +38,18 @@ pub mod vc_data_model_2_0_test_suite {
     "id": "did:example:subject"
   }
 }}"#;
+
+    /// https://github.com/w3c/vc-data-model-2.0-test-suite/blob/00fa18a7b676959e7aa5e4b8774a7ce049f9c0d0/tests/input/credential-subject-no-claims-fail.json
+    pub const CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL: &str = r#"
+{"credential": {
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "type": [
+    "VerifiableCredential"
+  ],
+  "credentialSubject": {}
+}}"#;
 }
 
 pub mod vc_issuer_api_openapi_spec {
