@@ -17,7 +17,7 @@ async fn main() {
 
     let issuer_keys = IssuerKeys::default();
     let app = vc_issuer_mock_core::vc_api_router(issuer_keys)
-        // log req/res body and latency
+        // log req/res body
         .layer(middleware::from_fn(log_req_res_body));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 40080);
