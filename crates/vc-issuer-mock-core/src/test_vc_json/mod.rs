@@ -24,11 +24,24 @@ pub mod vc_data_model_2_0_test_suite {
   },
   "options": {}
 }"#;
+
+    /// https://github.com/w3c/vc-data-model-2.0-test-suite/blob/00fa18a7b676959e7aa5e4b8774a7ce049f9c0d0/tests/input/credential-ok.json
+    pub const CREDENTIAL_OK: &str = r#"
+{"credential": {
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "type": [
+    "VerifiableCredential"
+  ],
+  "credentialSubject": {
+    "id": "did:example:subject"
+  }
+}}"#;
 }
 
-/// From <https://w3c-ccg.github.io/vc-api/issuer.html>.
 pub mod vc_issuer_api_openapi_spec {
-    /// https://github.com/w3c/vc-data-model-2.0-test-suite/blob/b2bd2dbdad5d810cb7a85c863fdff080381667db/tests/input/credential-ok.json
+    /// From <https://w3c-ccg.github.io/vc-api/issuer.html>.
     /// Modified to use v2.
     pub const REQUEST_SAMPLE: &str = r#"
 {

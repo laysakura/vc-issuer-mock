@@ -105,8 +105,9 @@ mod tests {
     use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
-        test_issuer_keys::issuer_keys_with_ec_p384, test_tracing::init_tracing,
-        test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
+        test_issuer_keys::issuer_keys_with_ec_p384,
+        test_tracing::init_tracing,
+        test_vc_json::vc_data_model_2_0_test_suite::{CREDENTIAL_OK, README_ALUMNI},
     };
 
     use super::*;
@@ -115,11 +116,10 @@ mod tests {
         Extension(issuer_keys_with_ec_p384())
     }
 
-    #[tokio::test]
-    async fn test_issue_with_data_integrity_proof_success() -> anyhow::Result<()> {
+    async fn assert_issue_with_data_integrity_proof_success(req: &str) -> anyhow::Result<()> {
         init_tracing();
 
-        let req: IssueRequest = serde_json::from_str(README_ALUMNI)?;
+        let req: IssueRequest = serde_json::from_str(req)?;
         let req = JsonReq(req);
 
         let res = issue(issuer_keys(), req.clone()).await?;
@@ -172,18 +172,13 @@ mod tests {
         Ok(())
     }
 
-    async fn assert_issue_error(req_json: &str, code: i32) -> anyhow::Result<()> {
-        init_tracing();
+    #[tokio::test]
+    async fn test_issue_with_data_integrity_proof_success_readme_alumni() -> anyhow::Result<()> {
+        assert_issue_with_data_integrity_proof_success(README_ALUMNI).await
+    }
 
-        let req: IssueRequest = serde_json::from_str(req_json)?;
-        let req = JsonReq(req);
-
-        let res = issue(issuer_keys(), req.clone()).await.unwrap_err();
-        assert_eq!(res.status, 400);
-
-        let problem_details = &res.problem_details;
-        assert_eq!(problem_details.code().unwrap(), code);
-
-        Ok(())
+    #[tokio::test]
+    async fn test_issue_with_data_integrity_proof_success_credential_ok() -> anyhow::Result<()> {
+        assert_issue_with_data_integrity_proof_success(CREDENTIAL_OK).await
     }
 }
