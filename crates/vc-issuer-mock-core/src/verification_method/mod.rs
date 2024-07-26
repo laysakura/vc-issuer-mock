@@ -161,10 +161,9 @@ impl CustomVerificationMethodResolver {
         // Pick the first issuer key (JWK)
         let public_key = self
             .issuer_keys
-            .public_keys()
+            .key_pairs()
             .first()
-            .map(|jwk| *jwk)
-            .cloned()
+            .map(|(_, vk)| JWK::from(vk))
             .ok_or_else(|| {
                 VerificationMethodResolutionError::InvalidVerificationMethod(
                     ssi::verification_methods::InvalidVerificationMethod::UnsupportedMethodType(

@@ -12,10 +12,20 @@ keywords.workspace = true
 rust-version.workspace = true
 edition.workspace = true
 
+[features]
+bin = ["dep:tokio", "dep:tracing-subscriber"]
+
+[[bin]]
+name = "vc-issuer-mock-core"
+path = "src/main.rs"
+required-features = ["bin"]
+
 [dependencies]
 anyhow.workspace = true
 axum.workspace = true
+derive_more.workspace = true
 http.workspace = true
+josekit.workspace = true
 json-syntax.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -23,6 +33,9 @@ serde_with.workspace = true
 ssi.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+
+tokio = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio.workspace = true

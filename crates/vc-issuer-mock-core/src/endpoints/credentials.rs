@@ -105,14 +105,14 @@ mod tests {
     use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
-        test_issuer_keys::jwk_p384, test_tracing::init_tracing,
+        test_issuer_keys::issuer_keys_with_ec_p384, test_tracing::init_tracing,
         test_vc_json::vc_data_model_2_0_test_suite::README_ALUMNI,
     };
 
     use super::*;
 
     fn issuer_keys() -> Extension<IssuerKeys> {
-        Extension(jwk_p384())
+        Extension(issuer_keys_with_ec_p384())
     }
 
     #[tokio::test]

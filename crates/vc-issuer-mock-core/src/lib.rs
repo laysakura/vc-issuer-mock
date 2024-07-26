@@ -26,7 +26,7 @@ pub mod test_vc_json;
 #[cfg(test)]
 mod tests {
     use crate::{
-        test_issuer_keys::jwk_p384,
+        test_issuer_keys::issuer_keys_with_ec_p384,
         test_tracing::init_tracing,
         vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
     };
@@ -50,7 +50,7 @@ mod tests {
     ) {
         init_tracing();
 
-        let issuer_keys = jwk_p384();
+        let issuer_keys = issuer_keys_with_ec_p384();
         let app = vc_api_router(issuer_keys);
 
         let req = Request::builder()
