@@ -306,7 +306,7 @@ mod tests {
     use tracing::debug;
 
     use crate::{
-        test_issuer_keys::{
+        test_jwks::{
             JWK_EC_P384_PRIV, JWK_EC_P384_PUB, JWK_OKP_ED25519_PRIV, JWK_OKP_ED25519_PUB,
             JWK_RSA_PRIV, JWK_RSA_PUB,
         },

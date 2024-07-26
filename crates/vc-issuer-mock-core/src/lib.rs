@@ -17,7 +17,7 @@ pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
 }
 
 #[cfg(test)]
-pub mod test_issuer_keys;
+pub mod test_jwks;
 #[cfg(test)]
 pub mod test_tracing;
 #[cfg(test)]
@@ -26,7 +26,6 @@ pub mod test_vc_json;
 #[cfg(test)]
 mod tests {
     use crate::{
-        test_issuer_keys::issuer_keys_with_ec_p384,
         test_tracing::init_tracing,
         test_vc_json::vc_data_model_2_0_test_suite::CREDENTIAL_OK,
         vcdm_v2::problem_details::{PredefinedProblemType, ProblemType},
@@ -50,7 +49,7 @@ mod tests {
     async fn issue(req_body: &str) -> Value {
         init_tracing();
 
-        let issuer_keys = issuer_keys_with_ec_p384();
+        let issuer_keys = IssuerKeys::default();
         let app = vc_api_router(issuer_keys);
 
         let req = Request::builder()

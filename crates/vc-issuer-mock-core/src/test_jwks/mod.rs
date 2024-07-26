@@ -1,6 +1,4 @@
-//! Example Issuer keys (for testing).
-
-use crate::IssuerKeys;
+//! Example JWKs (for testing).
 
 /// <https://datatracker.ietf.org/doc/html/rfc7517#appendix-A.2>
 pub const JWK_RSA_PRIV: &str = r#"{
@@ -56,16 +54,3 @@ pub const JWK_OKP_ED25519_PUB: &str = r#"{
   "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
 }
 "#;
-
-pub fn issuer_keys_with_rsa() -> IssuerKeys {
-    IssuerKeys::new(vec![JWK_RSA_PRIV])
-}
-
-pub fn issuer_keys_with_ec_p384() -> IssuerKeys {
-    IssuerKeys::new(vec![JWK_EC_P384_PRIV])
-}
-
-/// NOTE: [Ed25519Signature2020 was deprecated in the VC-DATA-INTEGRITY spec](https://www.w3.org/TR/vc-data-integrity/#revision-history).
-pub fn issuer_keys_okp_ed25519() -> IssuerKeys {
-    IssuerKeys::new(vec![JWK_OKP_ED25519_PRIV])
-}

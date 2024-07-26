@@ -105,7 +105,7 @@ mod tests {
     use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
-        test_issuer_keys::issuer_keys_with_ec_p384,
+        
         test_tracing::init_tracing,
         test_vc_json::vc_data_model_2_0_test_suite::{CREDENTIAL_OK, README_ALUMNI},
     };
@@ -113,7 +113,7 @@ mod tests {
     use super::*;
 
     fn issuer_keys() -> Extension<IssuerKeys> {
-        Extension(issuer_keys_with_ec_p384())
+        Extension(IssuerKeys::default())
     }
 
     async fn assert_issue_with_data_integrity_proof_success(req: &str) -> anyhow::Result<()> {
