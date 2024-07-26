@@ -7,6 +7,9 @@ This directory contains necessary files to pass the [vc-data-model-2.0-test-suit
 Run test target:
 
 ```console
+# First, run didkit-http at localhost:3000
+
+# Then run vc-issuer-mock-core
 cd ../
 export RUST_LOG=debug
 export RUST_BACKTRACE=1  # might be too noisy
