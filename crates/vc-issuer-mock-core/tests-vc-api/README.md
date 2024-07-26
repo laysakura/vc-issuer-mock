@@ -4,13 +4,20 @@ This directory contains necessary files to pass the [vc-data-model-2.0-test-suit
 
 ## Test locally
 
-Setup:
+Run test target:
+
+```console
+cd ../
+cargo run
+```
+
+Setup tests:
 
 ```console
 ./local-setup.sh
 ```
 
-Run:
+Run tests:
 
 ```console
 ./local-test.sh
