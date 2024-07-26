@@ -19,6 +19,7 @@ pub(crate) type VerifiableCredentialV2DataIntegrity =
 #[serde(rename_all = "camelCase")]
 pub(crate) struct IssueResponse {
     /// A JSON-LD Verifiable Credential with a proof.
+    #[serde(flatten)]
     pub(crate) verifiable_credential: VerifiableCredentialV2DataIntegrity,
     // TODO EnvelopedVerifiableCredential
 }
