@@ -15,15 +15,15 @@ use crate::endpoints::res::VerifiableCredentialV2;
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-
 pub(crate) struct IssueRequest {
     /// Currently, we do not support VCDM v1.
     pub(crate) credential: VerifiableCredentialV2,
+    #[serde(default)]
     pub(crate) options: IssueRequestOptions,
 }
 
 /// `options` field in [`self::IssueRequest``].
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
 #[serde_as]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct IssueRequestOptions {
