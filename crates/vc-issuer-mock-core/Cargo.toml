@@ -13,11 +13,11 @@ rust-version.workspace = true
 edition.workspace = true
 
 [features]
-bin = ["dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
+bin = ["dep:http-body-util", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
 
 [[bin]]
 name = "vc-issuer-mock-core"
-path = "src/main.rs"
+path = "src/server/mod.rs"
 required-features = ["bin"]
 
 [dependencies]
@@ -34,6 +34,7 @@ ssi.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 
+http-body-util = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
 tower-http = { workspace = true, optional = true}
 tracing-subscriber = { workspace = true, optional = true }

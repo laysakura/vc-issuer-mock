@@ -107,12 +107,15 @@ impl CustomVerificationMethodResolver {
         options: ResolutionOptions,
     ) -> Result<Cow<AnyMethod>, VerificationMethodResolutionError> {
         if method.id().scheme().as_str() == "did" {
-            self.did_resolver
+            if let Ok(method) = self
+                .did_resolver
                 .resolve_verification_method_with(issuer, Some(method), options)
                 .await
-        } else {
-            self.resolve_to_jwk2020(method.id())
+            {
+                return Ok(method);
+            }
         }
+        self.resolve_to_jwk2020(method.id())
     }
 
     // Similar codes to: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/credentials.rs#L91-L121>
