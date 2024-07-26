@@ -5,4 +5,5 @@
 //!
 //! So the implementations in this module are potentially pull-requested to the ssi crate.
 
+pub(crate) mod default_vc_properties;
 pub(crate) mod problem_details;

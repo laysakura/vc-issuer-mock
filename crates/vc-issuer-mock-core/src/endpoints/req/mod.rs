@@ -6,17 +6,28 @@
 
 pub(crate) mod json_req;
 
-use serde::Deserialize;
-use serde_with::serde_as;
+use serde::{Deserialize, Deserializer};
+use serde_json::Value;
+use serde_with::{serde_as, DeserializeAs};
 use ssi::claims::data_integrity::JsonPointerBuf;
 
-use crate::endpoints::res::VerifiableCredentialV2;
+use crate::{
+    endpoints::res::VerifiableCredentialV2, vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER,
+};
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
+#[serde_as]
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct IssueRequest {
     /// Currently, we do not support VCDM v1.
+    ///
+    /// A request parameter not always contains all necessary properties as VCDM v2.
+    /// For example, "issuer" property is mandatory [in VCDM v2](https://www.w3.org/TR/vc-data-model-2.0/#issuer),
+    /// but not in the [VC-API's request parameter](https://w3c-ccg.github.io/vc-api/#issue-credential).
+    ///
+    /// [`self::VerifiableCredentialV2WithDefault`] is a wrapper struct to provide default values for missing properties.
+    #[serde_as(as = "VerifiableCredentialV2WithDefault")]
     pub(crate) credential: VerifiableCredentialV2,
     #[serde(default)]
     pub(crate) options: IssueRequestOptions,
@@ -30,6 +41,28 @@ pub(crate) struct IssueRequestOptions {
     #[serde_as(as = "Option<Vec<DisplayFromStr>>")]
     pub(crate) mandatory_pointers: Option<Vec<JsonPointerBuf>>,
     pub(crate) credential_id: Option<String>,
+}
+
+struct VerifiableCredentialV2WithDefault;
+
+impl<'de> DeserializeAs<'de, VerifiableCredentialV2> for VerifiableCredentialV2WithDefault {
+    fn deserialize_as<D>(deserializer: D) -> Result<VerifiableCredentialV2, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let mut value: Value = Value::deserialize(deserializer)?;
+
+        if let Value::Object(ref mut map) = value {
+            if !map.contains_key("issuer") {
+                map.insert(
+                    "issuer".to_string(),
+                    Value::String(VC_DEFAULT_ISSUER.to_string()),
+                );
+            }
+        }
+
+        VerifiableCredentialV2::deserialize(value).map_err(serde::de::Error::custom)
+    }
 }
 
 #[cfg(test)]
