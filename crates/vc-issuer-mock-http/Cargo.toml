@@ -1,6 +1,6 @@
 [package]
-name = "vc-issuer-mock-server"
-description = "Standalone (VC-API) HTTP server"
+name = "vc-issuer-mock-http"
+description = "VC Issuer Mock (standalone HTTP server)"
 documentation = "https://docs.rs/vc-issuer-mock-server/"
 version.workspace = true
 authors.workspace = true
