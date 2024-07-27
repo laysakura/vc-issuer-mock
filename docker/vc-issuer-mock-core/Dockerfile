@@ -2,6 +2,7 @@
 # To pass test suites like vc-data-model-2.0-test-suite, we use didkit-http for other VC-APIs.
 #
 # This Dockerfile builds didkit-http and vc-issuer-mock-core, and runs them together.
+# Nginx is used to route requests to the correct service.
 
 # Layer1: Build didkit-http and vc-issuer-mock-core
 FROM rust:1.80 as builder
@@ -22,7 +23,7 @@ RUN cargo build -p vc-issuer-mock-core --bin vc-issuer-mock-core --features="bin
 FROM debian:bookworm-slim
 
 # libssl3 is required for didkit-http
-RUN apt-get update && apt-get install -y libssl3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y nginx libssl3 && rm -rf /var/lib/apt/lists/*
 
 # Copy built binaries
 COPY --from=builder /usr/src/app/didkit-http/target/debug/didkit-http /usr/local/bin/
@@ -31,10 +32,12 @@ COPY --from=builder /usr/src/app/vc-issuer-mock/target/debug/vc-issuer-mock-core
 # Copy run script and config file
 COPY docker/vc-issuer-mock-core/run_servers.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/run_servers.sh
+# Copy config files
+COPY docker/vc-issuer-mock-core/nginx.conf /etc/nginx/nginx.conf
 COPY docker/vc-issuer-mock-core/didkit_http.toml /app/
 
 # Run the script
 WORKDIR /app
 ENV RUST_LOG=debug
-EXPOSE 3000 40080
+EXPOSE 80
 CMD ["/usr/local/bin/run_servers.sh"]

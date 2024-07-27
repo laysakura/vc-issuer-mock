@@ -9,7 +9,7 @@ Run test targets:
 ```console
 cd ../../../
 docker build  -t vc-issuer-mock-core -f docker/vc-issuer-mock-core/Dockerfile .
-docker run --rm --name vc-issuer-mock-core -p 3000:3000 -p 40080:40080 vc-issuer-mock-core
+docker run --rm --name vc-issuer-mock-core -p 8000:80 vc-issuer-mock-core
 ```
 
 Setup tests:

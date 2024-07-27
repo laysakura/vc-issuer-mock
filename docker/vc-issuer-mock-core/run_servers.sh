@@ -1,5 +1,7 @@
 #!/bin/bash
 
+nginx &
+
 # runs on port 3000
 /usr/local/bin/didkit-http &
 

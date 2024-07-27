@@ -1,8 +1,8 @@
 // Before running the tests, you can specify a BASE_URL, such as
 // BASE_URL=http://localhost:40443/zDdfsdfs npm test
-const baseUrl = process.env.BASE_URL || "http://localhost:40080";
+const baseUrl = process.env.BASE_URL || "http://localhost:8000/vc-issuer-mock";
 const didkitHttpBaseUrl =
-  process.env.DIDKIT_HTTP_BASE_URL || "http://localhost:3000";
+  process.env.DIDKIT_HTTP_BASE_URL || "http://localhost:8000/didkit-http";
 
 module.exports = {
   settings: {},
