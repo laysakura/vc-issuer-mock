@@ -36,4 +36,5 @@ COPY docker/vc-issuer-mock-core/didkit_http.toml /app/
 # Run the script
 WORKDIR /app
 ENV RUST_LOG=debug
+EXPOSE 3000 40080
 CMD ["/usr/local/bin/run_servers.sh"]
