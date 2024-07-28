@@ -6,6 +6,7 @@ use serde::Serialize;
 
 use crate::vcdm_v2::problem_details::ProblemType;
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub(crate) enum CustomProblemType {

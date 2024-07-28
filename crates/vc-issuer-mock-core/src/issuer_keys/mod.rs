@@ -87,7 +87,7 @@ impl IssuerKeys {
             .iter()
             .map(|jwk| {
                 SigningKey::new(jwk.as_ref())
-                    .expect(format!("invalid JWK: {}", jwk.as_ref()).as_str())
+                    .unwrap_or_else(|_| panic!("invalid JWK: {}", jwk.as_ref()))
             })
             .collect();
 
@@ -166,8 +166,8 @@ impl SigningKey {
     /// - Unsupported key type
     /// - Not a private key
     fn new(signing_key_jwk: &str) -> anyhow::Result<Self> {
-        let jwk =
-            Jwk::from_bytes(signing_key_jwk).expect(&format!("invalid JWK: {}", signing_key_jwk));
+        let jwk = Jwk::from_bytes(signing_key_jwk)
+            .unwrap_or_else(|_| panic!("invalid JWK: {}", signing_key_jwk));
 
         // validation
         match jwk.key_type() {
@@ -203,7 +203,7 @@ impl VerificationKey {
     /// - Not a public key
     fn new(verification_key_jwk: &str) -> anyhow::Result<Self> {
         let jwk = Jwk::from_bytes(verification_key_jwk)
-            .expect(&format!("invalid JWK: {}", verification_key_jwk));
+            .unwrap_or_else(|_| panic!("invalid JWK: {}", verification_key_jwk));
 
         // validation
         match jwk.key_type() {
@@ -298,7 +298,7 @@ impl<M: MaybeJwkVerificationMethod> Signer<M> for IssuerKeys {
 
 fn josekit_to_ssi(jwk: &Jwk) -> JWK {
     let json = jwk.to_string();
-    JWK::from_str(&json).expect(format!("invalid JWK: {}", json).as_str())
+    JWK::from_str(&json).unwrap_or_else(|_| panic!("invalid JWK: {}", json))
 }
 
 #[cfg(test)]

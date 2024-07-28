@@ -11,6 +11,7 @@ use ssi::{
         SignatureEnvironment,
     },
     prelude::CryptographicSuite,
+    verification_methods::ReferenceOrOwned,
 };
 
 use crate::{
@@ -37,7 +38,7 @@ pub(crate) async fn issue(
     let issuer = req.credential.issuer();
     let vm_resolver = CustomVerificationMethodResolver::new(issuer_keys.clone());
     let vm = vm_resolver
-        .resolve(&issuer)
+        .resolve(issuer)
         .await
         .map_err(|problem_details| ErrorRes {
             status: http::StatusCode::BAD_REQUEST,
@@ -84,10 +85,10 @@ async fn create_vc_with_data_integrity(
     signature_options.mandatory_pointers =
         req.options.mandatory_pointers.clone().unwrap_or_default();
 
-    let mut proof_options = AnyInputOptions::default();
-    proof_options.verification_method = Some(ssi::verification_methods::ReferenceOrOwned::Owned(
-        vm.as_any_method().clone(),
-    ));
+    let proof_options = AnyInputOptions {
+        verification_method: Some(ReferenceOrOwned::Owned(vm.as_any_method().clone())),
+        ..Default::default()
+    };
 
     let vc = suite
         .sign_with(
@@ -172,7 +173,7 @@ mod tests {
             // proofPurpose
             assert!(matches!(proof.proof_purpose, ProofPurpose::Assertion));
             // proofValue
-            assert!(proof.signature.as_ref().len() > 0);
+            assert!(!proof.signature.as_ref().is_empty());
         }
 
         Ok(())
