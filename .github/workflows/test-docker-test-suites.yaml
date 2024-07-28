@@ -1,4 +1,4 @@
-name: Build and test vc-issuer-mock-core docker image
+name: Build vc-issuer-mock-core docker image and run test-suites locally
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
       - Cargo.lock
       - crates/vc-issuer-mock-core/**
       # workflow file
-      - .github/workflows/test-docker-vc-issuer-mock-core.yaml
-      - .github/workflows/test-docker-vc-issuer-mock-core/**
+      - .github/workflows/test-docker-test-suites.yaml
+      - .github/workflows/test-docker-test-suites/**
   workflow_dispatch:
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
+        submodules: true
 
     - name: Build Docker image
       run: |
@@ -31,7 +32,13 @@ jobs:
 
     - name: Test healthcheck endpoint
       run: |
-        bash ./.github/workflows/test-docker-vc-issuer-mock-core/healthcheck.sh
+        bash ./.github/workflows/test-docker-test-suites/healthcheck.sh
+
+    - name: Locally run vc-data-model-2.0-test-suite
+      run: |
+        cd ./crates/vc-issuer-mock-core/tests-vc-api/
+        ./local-setup.sh
+        ./local-test.sh
 
     - name: Clean up
       if: always()
