@@ -189,7 +189,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_issue_with_data_integrity_proof_error_empty_credential_subject() ->anyhow::Result<()>{
+    async fn test_issue_with_data_integrity_proof_error_empty_credential_subject(
+    ) -> anyhow::Result<()> {
         let req: IssueRequest = serde_json::from_str(CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL)?;
 
         let error_res = issue_(req).await.unwrap_err();
