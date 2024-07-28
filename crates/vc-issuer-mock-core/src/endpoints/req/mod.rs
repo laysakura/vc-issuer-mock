@@ -40,6 +40,7 @@ pub(crate) struct IssueRequest {
 pub(crate) struct IssueRequestOptions {
     #[serde_as(as = "Option<Vec<DisplayFromStr>>")]
     pub(crate) mandatory_pointers: Option<Vec<JsonPointerBuf>>,
+    #[allow(dead_code)]
     pub(crate) credential_id: Option<String>,
 }
 

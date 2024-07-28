@@ -15,7 +15,7 @@ use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
 #[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ProblemDetails {
+pub struct ProblemDetails {
     #[serde(rename = "type")]
     #[serde_as(as = "DisplayFromStr")]
     problem_type: Box<dyn ProblemType>,
@@ -23,15 +23,15 @@ pub(crate) struct ProblemDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     code: Option<i32>,
 
-    pub(crate) title: String,
-    pub(crate) detail: String,
+    pub title: String,
+    pub detail: String,
 
     #[serde(skip)]
     cause: anyhow::Error,
 }
 
 impl ProblemDetails {
-    pub(crate) fn new<T: ProblemType>(
+    pub fn new<T: ProblemType>(
         problem_type: T,
         title: String,
         detail: String,
@@ -48,12 +48,13 @@ impl ProblemDetails {
     }
 
     /// `type` property.
-    pub(crate) fn r#type(&self) -> &str {
+    #[allow(dead_code)]
+    pub fn r#type(&self) -> &str {
         self.problem_type.url()
     }
 
     /// `code` property.
-    pub(crate) fn code(&self) -> Option<i32> {
+    pub fn code(&self) -> Option<i32> {
         self.code
     }
 }
@@ -110,18 +111,21 @@ impl From<SignatureError> for ProblemDetails {
     }
 }
 
-pub(crate) trait ProblemType: fmt::Display + fmt::Debug + Send + Sync + 'static {
+pub trait ProblemType: fmt::Display + fmt::Debug + Send + Sync + 'static {
     fn url(&self) -> &'static str;
     fn code(&self) -> i32;
 }
 
 /// Predefined `type`s in <https://www.w3.org/TR/vc-data-model-2.0/#problem-details>.
+#[allow(clippy::enum_variant_names)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub(crate) enum PredefinedProblemType {
+pub enum PredefinedProblemType {
     ParsingError,
+    #[allow(dead_code)]
     CryptographicSecurityError,
     MalformedValueError,
+    #[allow(dead_code)]
     RangeError,
 }
 
