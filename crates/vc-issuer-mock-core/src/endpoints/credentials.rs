@@ -173,7 +173,7 @@ mod tests {
             // proofPurpose
             assert!(matches!(proof.proof_purpose, ProofPurpose::Assertion));
             // proofValue
-            assert!(proof.signature.as_ref().len() > 0);
+            assert!(!proof.signature.as_ref().is_empty());
         }
 
         Ok(())
