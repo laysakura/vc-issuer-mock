@@ -10,8 +10,8 @@ on:
       - '**/Cargo.toml'
       - Cargo.lock
       # workflow file
-      - .github/workflows/rust-lint.yaml
-      
+      - .github/workflows/lint-rust.yaml
+
 jobs:
   format:
     name: Check formatting
