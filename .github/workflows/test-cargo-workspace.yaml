@@ -13,7 +13,7 @@ on:
       - crates/vc-issuer-mock-rs/**
       - crates/vc-issuer-mock-http/**
       # workflow file
-      - .github/workflows/test-cargo-workspace.yml
+      - .github/workflows/test-cargo-workspace.yaml
   # For dependabot PRs
   pull_request_target:
     paths:
@@ -24,7 +24,7 @@ on:
       - crates/vc-issuer-mock-rs/**
       - crates/vc-issuer-mock-http/**
       # workflow file
-      - .github/workflows/test-cargo-workspace.yml
+      - .github/workflows/test-cargo-workspace.yaml
   workflow_dispatch:
 
 jobs:
