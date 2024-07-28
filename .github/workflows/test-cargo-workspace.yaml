@@ -30,6 +30,10 @@ on:
 jobs:
   build:
     name: Test cargo workspace
+    # avoid running the job twice
+    if: |
+      (github.event_name == 'pull_request_target' && github.actor == 'dependabot[bot]') ||
+      (github.event_name != 'pull_request_target' && github.actor != 'dependabot[bot]')
     strategy:
       # Do not stop the workflow even if one of the matrix jobs fails.
       fail-fast: false
