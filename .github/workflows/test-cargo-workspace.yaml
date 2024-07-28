@@ -1,0 +1,52 @@
+name: Test cargo workspace
+
+on:
+  pull_request:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      # workspace members
+      - crates/vc-issuer-mock-core/**
+      - crates/vc-issuer-mock-rs/**
+      - crates/vc-issuer-mock-http/**
+      # workflow file
+      - .github/workflows/test-cargo-workspace.yml
+  # For dependabot PRs
+  pull_request_target:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      # workspace members
+      - crates/vc-issuer-mock-core/**
+      - crates/vc-issuer-mock-rs/**
+      - crates/vc-issuer-mock-http/**
+      # workflow file
+      - .github/workflows/test-cargo-workspace.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Test cargo workspace
+    strategy:
+      # Do not stop the workflow even if one of the matrix jobs fails.
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Rust toolchain
+        run: |
+          rustup set profile minimal
+          rustup install stable
+          rustup override set stable
+          cargo install cross
+      - name: Test with all features
+        run: |
+          cargo test --release --all-features
