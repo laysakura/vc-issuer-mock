@@ -18,7 +18,7 @@ module.exports = {
         },
       ],
 
-      // Settings from: <>https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/tests/localConfig.cjs#L90-L113
+      // Settings from: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/tests/localConfig.cjs#L90-L113>
       verifiers: [
         {
           id: "https://spruceid.com",
