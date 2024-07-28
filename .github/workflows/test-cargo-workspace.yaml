@@ -1,22 +1,27 @@
 name: Test cargo workspace
 
-env:
-  PATHS_FILTER: |
-    Cargo.toml
-    Cargo.lock
-    crates/vc-issuer-mock-core/**
-    crates/vc-issuer-mock-rs/**
-    crates/vc-issuer-mock-http/**
-    .github/workflows/test-cargo-workspace.yml
-
 on:
   pull_request:
     paths:
-      - ${{ env.PATHS_FILTER }}
+      - Cargo.toml
+      - Cargo.lock
+      # workspace members
+      - crates/vc-issuer-mock-core/**
+      - crates/vc-issuer-mock-rs/**
+      - crates/vc-issuer-mock-http/**
+      # workflow file
+      - .github/workflows/test-cargo-workspace.yml
   # For dependabot PRs
   pull_request_target:
     paths:
-      - ${{ env.PATHS_FILTER }}
+      - Cargo.toml
+      - Cargo.lock
+      # workspace members
+      - crates/vc-issuer-mock-core/**
+      - crates/vc-issuer-mock-rs/**
+      - crates/vc-issuer-mock-http/**
+      # workflow file
+      - .github/workflows/test-cargo-workspace.yml
   workflow_dispatch:
 
 jobs:
