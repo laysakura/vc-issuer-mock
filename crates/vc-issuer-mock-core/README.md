@@ -4,20 +4,6 @@
 
 Core implementations for VC Issuer Mock. Meant to be used only as a dependency for vc-issuer-mock- family.
 
-## Conformance to W3C VC-API
-
-vc-issuer-mock-core is implemented as an [Issuer Service](https://w3c-ccg.github.io/vc-api/#issuer-service).
-
-TODO list the conformances
-
-- DATA-INTEGRITY
-
-### Test suites
-
-This crate is tested against the following test suites:
-
-- [vc-data-model-2.0-test-suite](https://github.com/w3c-ccg/vc-data-model-2.0-test-suite)
-
 ## Development
 
 ### Error handling
@@ -27,6 +13,12 @@ Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requi
 Use `Result<T, ErrorRes>` for API handler functions.
 
 `ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
+
+### Conformance to W3C test suites
+
+[`tests-vc-api` subdirectory](./tests-vc-api/) contains documents and scripts to locally test the conformance.
+
+See the list of statuses to conformance tests in the [top-level README](../../README.md).
 
 <!-- cargo-rdme end -->
 

@@ -25,11 +25,13 @@ TBD
 
 ## Conformance
 
-All the interfaces provided by this repository depend on [vc-issuer-mock-core](./crates/vc-issuer-mock-core/). This core library implements the [VC-API](https://w3c-ccg.github.io/vc-api/) as an Issuer Service.
+All the interfaces provided by this repository depend on [vc-issuer-mock-core](./crates/vc-issuer-mock-core/). This core library implements part of the [VC-API](https://w3c-ccg.github.io/vc-api/) as an Issuer Service.
 
 The vc-issue-mock-core library is tested against the following W3C's test-suites:
 
 - Verifiable Credentials v2.0 Test Suite ([repo](https://github.com/w3c/vc-data-model-2.0-test-suite), [report](https://w3c.github.io/vc-data-model-2.0-test-suite/))
+
+[A document under vc-issuer-mock-core](./crates/vc-issuer-mock-core/tests-vc-api/README.md) describes how the conformance test target is built and deployed.
 
 ## License
 
