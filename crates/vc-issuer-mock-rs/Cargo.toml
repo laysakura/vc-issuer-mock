@@ -1,0 +1,16 @@
+[package]
+name = "vc-issuer-mock-rs"
+description = "VC Issuer Mock (Rust SDK)"
+documentation = "https://docs.rs/vc-issuer-mock-rs/"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+rust-version.workspace = true
+edition.workspace = true
+
+[dependencies]
+vc-issuer-mock-core.workspace = true

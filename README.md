@@ -12,7 +12,7 @@ This repository provides a testable mock implementation of a Verifiable Credenti
 VC Issuer Mock supports the following interfaces:
 
 - Language-specific SDKs
-  - Rust (vc-issuer-mock-rs)
+  - Rust ([vc-issuer-mock-rs](./crates/vc-issuer-mock-rs/))
 - HTTP API ([vc-issuer-mock-http](./crates/vc-issuer-mock-http/))
 
 ## Installation

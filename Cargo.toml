@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/vc-issuer-mock-core", "crates/vc-issuer-mock-http"]
+members = ["crates/vc-issuer-mock-core", "crates/vc-issuer-mock-http", "crates/vc-issuer-mock-rs"]
 resolver = "2"
 
 [workspace.package]
