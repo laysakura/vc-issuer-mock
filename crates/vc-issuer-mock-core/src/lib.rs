@@ -13,6 +13,9 @@ use axum::{routing::post, Extension, Router};
 pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
     Router::new()
         .route("/credentials/issue", post(endpoints::credentials::issue))
+        .route("/credential", post(endpoints::oid4vci::credential))
+        .route("/credential_offer", post(endpoints::oid4vci::credential_offer))
+        .route("/.well-known/openid-credential-issuer", post(endpoints::oid4vci::well_known_credential_issuer))
         .layer(Extension(issuer_keys))
 }
 
