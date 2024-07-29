@@ -16,3 +16,5 @@ edition.workspace = true
 vc-issuer-mock-core.workspace = true
 
 axum.workspace = true
+tracing.workspace = true
+tracing_subscriber.workspace = true

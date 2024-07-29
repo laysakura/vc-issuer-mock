@@ -4,6 +4,8 @@ use vc_issuer_mock_core::{vc_api_router, IssuerKeys};
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     let issuer_keys = IssuerKeys::default();
     let app = Router::new()
         .nest("/vc-api", vc_api_router(issuer_keys.clone()))
@@ -14,7 +16,7 @@ async fn main() {
         .parse::<u16>()
         .expect("Invalid port number");
 
-    let addr = ([127, 0, 0, 1], port).into();
+    let addr = ([0, 0, 0, 0], port).into();
     println!("Listening on http://{}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
