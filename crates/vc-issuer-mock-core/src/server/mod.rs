@@ -1,4 +1,4 @@
-#[cfg(feature = "bin")]
+#[cfg(feature = "server")]
 pub mod log_req_res_body;
 
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};

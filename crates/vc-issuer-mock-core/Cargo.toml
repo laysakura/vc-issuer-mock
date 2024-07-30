@@ -13,12 +13,12 @@ rust-version.workspace = true
 edition.workspace = true
 
 [features]
-bin = ["dep:http-body-util", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
+server = ["dep:http-body-util", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
 
 [[bin]]
 name = "vc-issuer-mock-core"
 path = "src/server/mod.rs"
-required-features = ["bin"]
+required-features = ["server"]
 
 [dependencies]
 anyhow.workspace = true
