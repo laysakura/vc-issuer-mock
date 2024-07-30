@@ -13,7 +13,7 @@ use ssi::claims::data_integrity::JsonPointerBuf;
 
 use crate::{
     endpoints::vc_api::res::VerifiableCredentialV2,
-    vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER,
+    vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER_ID,
 };
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
@@ -59,10 +59,12 @@ impl<'de> DeserializeAs<'de, VerifiableCredentialV2> for VerifiableCredentialV2W
         let mut value: Value = Value::deserialize(deserializer)?;
 
         if let Value::Object(ref mut map) = value {
+            // NOTE: vc-issuer-mock-http and other interfaces we implement should pass `issuer` property.
+            // This default value is for other users like W3C test suites.
             if !map.contains_key("issuer") {
                 map.insert(
                     "issuer".to_string(),
-                    Value::String(VC_DEFAULT_ISSUER.to_string()),
+                    Value::String(VC_DEFAULT_ISSUER_ID.to_string()),
                 );
             }
         }

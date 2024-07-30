@@ -1,4 +1,7 @@
 use axum::http::Uri;
+use vc_issuer_mock_core::VC_DEFAULT_ISSUER_ID;
+
+const DEFAULT_PORT: u16 = 50080;
 
 /// Defines the settings for the VC Issuer Mock HTTP server at launch time.
 #[derive(Eq, PartialEq, Debug)]
@@ -17,9 +20,9 @@ impl Settings {
     ///
     /// If any of the required environment variables is not set, or in invalid format
     pub(crate) fn new_from_env() -> Self {
-        let port = std::env::var("ISSMOCK_PORT").unwrap_or_else(|_| "50080".to_string());
-        let issuer_id = std::env::var("ISSMOCK_ISSUER_ID")
-            .unwrap_or_else(|_| "https://github.com/laysakura/vc-issuer-mock".to_string());
+        let port = std::env::var("ISSMOCK_PORT").unwrap_or_else(|_| DEFAULT_PORT.to_string());
+        let issuer_id =
+            std::env::var("ISSMOCK_ISSUER_ID").unwrap_or_else(|_| VC_DEFAULT_ISSUER_ID.to_string());
         let oauth2_server =
             std::env::var("ISSMOCK_OAUTH2_SERVER").expect("`ISSMOCK_OAUTH2_SERVER` env is not set");
 
