@@ -12,7 +12,10 @@ use axum::{routing::post, Extension, Router};
 /// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
 pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
     Router::new()
-        .route("/credentials/issue", post(endpoints::credentials::issue))
+        .route(
+            "/credentials/issue",
+            post(endpoints::vc_api::credentials::issue),
+        )
         .layer(Extension(issuer_keys))
 }
 
@@ -44,8 +47,8 @@ mod tests {
     /// Call POST /credentials/issue with the given request body.
     /// Returns the response body as `serde_json::Value`.
     ///
-    /// Returned response can be either of [`IssueResponse`](crate::endpoints::res::IssueResponse) or
-    /// [`ErrorRes`](crate::endpoints::res::error_res::ErrorRes).
+    /// Returned response can be either of [`IssueResponse`](crate::endpoints::vc_apires::IssueResponse) or
+    /// [`ErrorRes`](crate::endpoints::vc_apires::error_res::ErrorRes).
     async fn issue(req_body: &str) -> Value {
         init_tracing();
 

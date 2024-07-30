@@ -15,7 +15,7 @@ use ssi::{
 };
 
 use crate::{
-    endpoints::{
+    endpoints::vc_api::{
         req::{json_req::JsonReq, IssueRequest},
         res::{
             error_res::VcApiErrorRes, success_res::SuccessRes, IssueResponse,

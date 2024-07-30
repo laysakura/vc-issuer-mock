@@ -12,7 +12,8 @@ use serde_with::{serde_as, DeserializeAs};
 use ssi::claims::data_integrity::JsonPointerBuf;
 
 use crate::{
-    endpoints::res::VerifiableCredentialV2, vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER,
+    endpoints::vc_api::res::VerifiableCredentialV2,
+    vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER,
 };
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
