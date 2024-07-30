@@ -4,17 +4,12 @@
 //! section says we MUST return error on unknown fields.
 //! We use #[serde(deny_unknown_fields)] to enforce this.
 
-pub(crate) mod json_req;
-
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use serde_with::{serde_as, DeserializeAs};
 use ssi::claims::data_integrity::JsonPointerBuf;
 
-use crate::{
-    endpoints::vc_api::res::VerifiableCredentialV2,
-    vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER_ID,
-};
+use crate::vcdm_v2::{default_vc_properties::VC_DEFAULT_ISSUER_ID, VerifiableCredentialV2};
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
 #[serde_as]

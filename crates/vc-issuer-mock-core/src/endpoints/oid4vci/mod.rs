@@ -1,6 +1,6 @@
 //! OID4VCI endpoints.
 
-use crate::{endpoints::vc_api::res::vc_api_error::VcApiError, IssuerKeys};
+use crate::{endpoints::vc_api::vc_api_error::VcApiError, IssuerKeys};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

@@ -2,14 +2,8 @@
 
 pub(crate) mod settings;
 
-use axum::{
-    routing::{post, Route},
-    Router,
-};
-use std::{
-    env,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-};
+use axum::{routing::post, Extension, Router};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio::net::TcpListener;
 use tracing::info;
 use vc_issuer_mock_core::{
@@ -35,7 +29,8 @@ async fn main() {
 
     let app = Router::new()
         .nest("/vc-api", vc_api_router)
-        .nest("/oid4vci", oid4vci_router);
+        .nest("/oid4vci", oid4vci_router)
+        .layer(Extension(issuer_keys));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), settings.port);
     let listener = TcpListener::bind(&addr)
