@@ -7,12 +7,13 @@ use axum::{
 use http::Request;
 
 use crate::{
-    endpoints::vc_api::res::error_res::ErrorRes,
+    endpoints::vc_api::res::vc_api_error::VcApiError,
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
 };
 
+/// A wrapper for `axum::Json` to handle JSON parse errors.
 #[derive(Clone, Debug)]
-pub(crate) struct JsonReq<T>(pub(crate) T);
+pub struct JsonReq<T>(pub(crate) T);
 
 #[async_trait]
 impl<S, T> FromRequest<S> for JsonReq<T>
@@ -20,7 +21,7 @@ where
     axum::Json<T>: FromRequest<S, Rejection = JsonRejection>,
     S: Send + Sync,
 {
-    type Rejection = ErrorRes;
+    type Rejection = VcApiError;
 
     async fn from_request(req: Request<Body>, state: &S) -> Result<Self, Self::Rejection> {
         match axum::Json::<T>::from_request(req, state).await {

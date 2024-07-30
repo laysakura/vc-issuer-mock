@@ -15,21 +15,21 @@ use thiserror::Error;
 use tracing::{debug, error};
 
 use crate::{
-    endpoints::vc_api::res::error_res::custom_problem_types::CustomProblemType,
+    endpoints::vc_api::res::vc_api_error::custom_problem_types::CustomProblemType,
     vcdm_v2::problem_details::{ProblemDetails, ProblemType},
 };
 
-/// The error response body used in vc-issuer-mock family.
+/// The error response body used in VC-API.
 #[serde_as]
 #[derive(Debug, Error, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ErrorRes {
+pub struct VcApiError {
     #[serde_as(as = "serde_with::FromInto<u16>")]
     pub(crate) status: StatusCode,
     pub(crate) problem_details: ProblemDetails,
 }
 
-impl fmt::Display for ErrorRes {
+impl fmt::Display for VcApiError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -39,13 +39,13 @@ impl fmt::Display for ErrorRes {
     }
 }
 
-impl IntoResponse for ErrorRes {
+impl IntoResponse for VcApiError {
     fn into_response(self) -> Response {
         (self.status, Json(self)).into_response()
     }
 }
 
-impl From<ProblemDetails> for ErrorRes {
+impl From<ProblemDetails> for VcApiError {
     fn from(problem_details: ProblemDetails) -> Self {
         let code = problem_details.code().unwrap_or(0);
 
@@ -64,7 +64,7 @@ impl From<ProblemDetails> for ErrorRes {
     }
 }
 
-impl From<anyhow::Error> for ErrorRes {
+impl From<anyhow::Error> for VcApiError {
     fn from(e: anyhow::Error) -> Self {
         error!("InternalServerError: {:?}", e);
 
@@ -74,7 +74,7 @@ impl From<anyhow::Error> for ErrorRes {
             e.to_string(),
             e,
         );
-        ErrorRes {
+        VcApiError {
             status: StatusCode::INTERNAL_SERVER_ERROR,
             problem_details,
         }

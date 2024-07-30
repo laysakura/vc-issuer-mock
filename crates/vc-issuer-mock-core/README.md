@@ -18,15 +18,13 @@ Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requi
 
 Use `Result<T, VcApiError>` for API handler functions.
 
-`ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
+`ProblemDetails::detail` is returned to clients, so it should not include any sensitive information.
 
 ### In `crate::endpoints::oid4vci`
 
-Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requires `anyhow::Error` as a cause, `ProblemDetail` helps to add backtraces to some errors defined in other crates.
+Use `Result<T, Oid4vciError>` for most functions. It requires `anyhow::Error` to make backtraces available.
 
-Use `Result<T, ErrorRes>` for API handler functions.
-
-`ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
+`Oid4vciError::error_description` is returned to clients, so it should not include any sensitive information.
 
 <!-- cargo-rdme end -->
 

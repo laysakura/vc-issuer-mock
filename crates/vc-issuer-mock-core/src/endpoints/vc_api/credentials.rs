@@ -15,12 +15,12 @@ use ssi::{
 };
 
 use crate::{
-    endpoints::vc_api::{
-        req::{json_req::JsonReq, IssueRequest},
-        res::{
-            error_res::ErrorRes, success_res::SuccessRes, IssueResponse,
-            VerifiableCredentialV2DataIntegrity,
+    endpoints::{
+        vc_api::{
+            req::{json_req::JsonReq, IssueRequest},
+            res::{vc_api_error::VcApiError, IssueResponse, VerifiableCredentialV2DataIntegrity},
         },
+        SuccessRes,
     },
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
     verification_method::{CustomVerificationMethodResolver, VerificationMethod},
@@ -29,10 +29,10 @@ use crate::{
 
 /// `POST /credentials/issue``
 #[axum::debug_handler]
-pub(crate) async fn issue(
+pub async fn issue(
     Extension(issuer_keys): Extension<IssuerKeys>,
     JsonReq(req): JsonReq<IssueRequest>,
-) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+) -> Result<SuccessRes<IssueResponse>, VcApiError> {
     validate_issue_request(&req)?;
 
     let issuer = req.credential.issuer();
@@ -40,7 +40,7 @@ pub(crate) async fn issue(
     let vm = vm_resolver
         .resolve(issuer)
         .await
-        .map_err(|problem_details| ErrorRes {
+        .map_err(|problem_details| VcApiError {
             status: http::StatusCode::BAD_REQUEST,
             problem_details,
         })?;
@@ -53,12 +53,12 @@ pub(crate) async fn issue(
     })
 }
 
-fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
+fn validate_issue_request(req: &IssueRequest) -> Result<(), VcApiError> {
     // <https://www.w3.org/TR/vc-data-model-2.0/#credential-subject>
     // > A verifiable credential contains claims about one or more subjects.
     let sub = req.credential.credential_subjects();
     if sub.is_empty() || sub.iter().any(|s| s.is_empty()) {
-        return Err(ErrorRes {
+        return Err(VcApiError {
             status: http::StatusCode::BAD_REQUEST,
             problem_details: ProblemDetails::new(
                 PredefinedProblemType::MalformedValueError,
@@ -118,7 +118,7 @@ mod tests {
 
     use super::*;
 
-    async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+    async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, VcApiError> {
         init_tracing();
 
         let issuer_keys = Extension(IssuerKeys::default());
@@ -194,10 +194,10 @@ mod tests {
     ) -> anyhow::Result<()> {
         let req: IssueRequest = serde_json::from_str(CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL)?;
 
-        let error_res = issue_(req).await.unwrap_err();
-        assert_eq!(error_res.status, http::StatusCode::BAD_REQUEST);
+        let vc_api_error = issue_(req).await.unwrap_err();
+        assert_eq!(vc_api_error.status, http::StatusCode::BAD_REQUEST);
 
-        let problem_details = error_res.problem_details;
+        let problem_details = vc_api_error.problem_details;
         assert_eq!(
             problem_details.code().unwrap(),
             PredefinedProblemType::MalformedValueError.code()

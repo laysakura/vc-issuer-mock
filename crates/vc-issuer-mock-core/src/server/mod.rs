@@ -3,11 +3,11 @@ pub mod log_req_res_body;
 
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use axum::middleware;
+use axum::{middleware, routing::post, Extension, Router};
 use log_req_res_body::log_req_res_body;
 use tokio::net::TcpListener;
 use tracing::info;
-use vc_issuer_mock_core::IssuerKeys;
+use vc_issuer_mock_core::{endpoints::vc_api, IssuerKeys};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +16,9 @@ async fn main() {
         .init();
 
     let issuer_keys = IssuerKeys::default();
-    let app = vc_issuer_mock_core::vc_api_router(issuer_keys)
+    let app = Router::new()
+        .route("/credentials/issue", post(vc_api::credentials::issue))
+        .layer(Extension(issuer_keys))
         // log req/res body
         .layer(middleware::from_fn(log_req_res_body));
 

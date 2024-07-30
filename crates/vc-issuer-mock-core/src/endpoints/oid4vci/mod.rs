@@ -1,35 +1,35 @@
 //! OID4VCI endpoints.
 
-use crate::{endpoints::vc_api::res::error_res::ErrorRes, IssuerKeys};
+use crate::{endpoints::vc_api::res::vc_api_error::VcApiError, IssuerKeys};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
-struct CredentialRequest {
+pub struct CredentialRequest {
     credential_type: String,
     format: String,
     proof: HashMap<String, String>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct CredentialResponse {
+pub struct CredentialResponse {
     credential: String,
 }
 
 #[derive(Serialize, Deserialize)]
-struct CredentialOfferRequest {
+pub struct CredentialOfferRequest {
     credential_issuer: String,
     credential_configuration_ids: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct CredentialOfferResponse {
+pub struct CredentialOfferResponse {
     credential_offer: String,
 }
 
 #[derive(Serialize, Deserialize)]
-struct WellKnownCredentialIssuer {
+pub struct WellKnownCredentialIssuer {
     credential_issuer: String,
     authorization_servers: String,
     credential_endpoint: String,
@@ -46,7 +46,7 @@ struct CredentialConfiguration {
 pub async fn credential(
     Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<CredentialRequest>,
-) -> Result<Json<CredentialResponse>, ErrorRes> {
+) -> Result<Json<CredentialResponse>, VcApiError> {
     // Implement the logic for the credential endpoint
     Ok(Json(CredentialResponse {
         credential: "dummy_credential".to_string(),
@@ -57,7 +57,7 @@ pub async fn credential(
 pub async fn credential_offer(
     Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<CredentialOfferRequest>,
-) -> Result<Json<CredentialOfferResponse>, ErrorRes> {
+) -> Result<Json<CredentialOfferResponse>, VcApiError> {
     // Implement the logic for the credential offer endpoint
     Ok(Json(CredentialOfferResponse {
         credential_offer: "dummy_credential_offer".to_string(),
