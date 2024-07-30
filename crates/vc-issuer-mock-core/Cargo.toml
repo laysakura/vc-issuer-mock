@@ -33,6 +33,7 @@ serde_with.workspace = true
 ssi.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+urlencoding.workspace = true
 
 http-body-util = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }

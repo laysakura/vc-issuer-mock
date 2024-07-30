@@ -1,5 +1,8 @@
 //! OID4VCI endpoints.
 
+pub(crate) mod credential_offer;
+pub use credential_offer::CredentialOffer;
+
 use crate::{endpoints::vc_api::vc_api_error::VcApiError, IssuerKeys};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};

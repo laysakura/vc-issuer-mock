@@ -45,7 +45,7 @@ To configure the HTTP server, set the following environment variables:
 
 ### Custom endpoints
 
-- **TODO** `GET /oid4vci/`
+- **TODO** `GET /custom/credential-offer`
   - An HTML page to show the Credential Offer Endpoint URLs (in a QR code and a hyperlink).
 
 <!-- cargo-rdme end -->

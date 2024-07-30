@@ -1,17 +1,28 @@
 #![doc = include_str!("../README.md")]
 
+pub(crate) mod endpoints;
 pub(crate) mod settings;
+pub(crate) mod templates;
 
-use axum::{routing::post, Extension, Router};
+#[cfg(test)]
+pub mod test_tracing;
+
+use axum::{
+    routing::{get, post},
+    Extension, Router,
+};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio::net::TcpListener;
 use tracing::info;
 use vc_issuer_mock_core::{
-    endpoints::{oid4vci, vc_api},
+    endpoints::{
+        oid4vci::{self, CredentialOffer},
+        vc_api,
+    },
     IssuerKeys,
 };
 
-use crate::settings::Settings;
+use crate::{endpoints::custom, settings::Settings, templates::init_templates};
 
 #[tokio::main]
 async fn main() {
@@ -19,6 +30,8 @@ async fn main() {
 
     let settings = Settings::new_from_env();
     let issuer_keys = IssuerKeys::default();
+    let credential_offer = CredentialOffer::new(&settings.issuer_id);
+    let templates = init_templates();
 
     let vc_api_router =
         Router::new().route("/credentials//issue", post(vc_api::credentials::issue));
@@ -27,10 +40,16 @@ async fn main() {
         .route("/credentials", post(oid4vci::credential))
         .route("/credential-offer", post(oid4vci::credential_offer));
 
+    let custom_router =
+        Router::new().route("/credential-offer", get(custom::credential_offer::show));
+
     let app = Router::new()
         .nest("/vc-api", vc_api_router)
         .nest("/oid4vci", oid4vci_router)
-        .layer(Extension(issuer_keys));
+        .nest("/custom", custom_router)
+        .layer(Extension(issuer_keys))
+        .layer(Extension(credential_offer))
+        .layer(Extension(templates));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), settings.port);
     let listener = TcpListener::bind(&addr)
