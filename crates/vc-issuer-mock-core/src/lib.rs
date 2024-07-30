@@ -39,7 +39,7 @@ mod tests {
     /// Returns the response body as `serde_json::Value`.
     ///
     /// Returned response can be either of [`IssueResponse`](crate::endpoints::vc_apires::IssueResponse) or
-    /// [`ErrorRes`](crate::endpoints::vc_apires::error_res::ErrorRes).
+    /// [`ErrorRes`](crate::endpoints::vc_apires::vc_api_error::ErrorRes).
     async fn issue(req_body: &str) -> Value {
         init_tracing();
 
@@ -122,7 +122,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_issue_non_json_req_error_res() {
+    async fn test_issue_non_json_req_vc_api_error() {
         test_issue_req_serialize_error("INVALID-AS-JSON", PredefinedProblemType::ParsingError)
             .await;
     }

@@ -1,6 +1,6 @@
 //! Responses of VC-API endpoints.
 
-pub(crate) mod error_res;
+pub mod vc_api_error;
 
 use serde::Serialize;
 use ssi::{
