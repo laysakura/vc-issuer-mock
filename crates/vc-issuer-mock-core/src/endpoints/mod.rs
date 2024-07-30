@@ -1,6 +1,2 @@
-//! VC-API endpoints.
-
-pub(crate) mod req;
-pub(crate) mod res;
-
-pub(crate) mod credentials;
+pub mod oid4vci;
+pub mod vc_api;

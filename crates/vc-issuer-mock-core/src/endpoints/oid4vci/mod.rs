@@ -1,7 +1,9 @@
+//! OID4VCI endpoints.
+
+use crate::{endpoints::vc_api::res::error_res::ErrorRes, IssuerKeys};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use vc_issuer_mock_core::{IssuerKeys, endpoints::res::error_res::ErrorRes};
 
 #[derive(Serialize, Deserialize)]
 struct CredentialRequest {
@@ -39,8 +41,9 @@ struct CredentialConfiguration {
     format: String,
 }
 
+// TODO use another error type
 #[axum::debug_handler]
-async fn credential(
+pub async fn credential(
     Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<CredentialRequest>,
 ) -> Result<Json<CredentialResponse>, ErrorRes> {
@@ -51,7 +54,7 @@ async fn credential(
 }
 
 #[axum::debug_handler]
-async fn credential_offer(
+pub async fn credential_offer(
     Extension(issuer_keys): Extension<IssuerKeys>,
     Json(req): Json<CredentialOfferRequest>,
 ) -> Result<Json<CredentialOfferResponse>, ErrorRes> {
@@ -62,7 +65,7 @@ async fn credential_offer(
 }
 
 #[axum::debug_handler]
-async fn well_known_credential_issuer() -> Json<WellKnownCredentialIssuer> {
+pub async fn well_known_credential_issuer() -> Json<WellKnownCredentialIssuer> {
     // Implement the logic for the well-known credential issuer endpoint
     Json(WellKnownCredentialIssuer {
         credential_issuer: "https://github.com/laysakura/vc-issuer-mock".to_string(),

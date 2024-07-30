@@ -12,7 +12,13 @@ use axum::{routing::post, Extension, Router};
 /// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
 pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
     Router::new()
-        .route("/credentials/issue", post(endpoints::credentials::issue))
+        .route("/credentials/issue", post(endpoints::vc_api::credentials::issue))
+        .layer(Extension(issuer_keys))
+}
+
+/// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
+pub fn oid4vci_api_router(issuer_keys: IssuerKeys) -> Router {
+    Router::new()
         .route("/credential", post(endpoints::oid4vci::credential))
         .route("/credential_offer", post(endpoints::oid4vci::credential_offer))
         .route("/.well-known/openid-credential-issuer", post(endpoints::oid4vci::well_known_credential_issuer))

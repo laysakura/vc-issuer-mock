@@ -15,7 +15,7 @@ use thiserror::Error;
 use tracing::{debug, error};
 
 use crate::{
-    endpoints::res::error_res::custom_problem_types::CustomProblemType,
+    endpoints::vc_api::res::error_res::custom_problem_types::CustomProblemType,
     vcdm_v2::problem_details::{ProblemDetails, ProblemType},
 };
 

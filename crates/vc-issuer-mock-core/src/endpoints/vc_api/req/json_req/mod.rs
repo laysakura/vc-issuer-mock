@@ -7,7 +7,7 @@ use axum::{
 use http::Request;
 
 use crate::{
-    endpoints::res::error_res::ErrorRes,
+    endpoints::vc_api::res::error_res::ErrorRes,
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
 };
 

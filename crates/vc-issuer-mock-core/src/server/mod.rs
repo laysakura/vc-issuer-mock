@@ -24,7 +24,7 @@ async fn main() {
     let listener = TcpListener::bind(&addr)
         .await
         .expect("Could not bind listener");
-    info!("listening on {}", addr);
+    info!("[vc-issuer-mock-core] Listening on {}", addr);
     axum::serve(listener, app.into_make_service())
         .await
         .expect("failed to start server");

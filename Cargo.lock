@@ -5926,6 +5926,8 @@ name = "vc-issuer-mock-http"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "tracing",
+ "tracing-subscriber",
  "vc-issuer-mock-core",
 ]
 
