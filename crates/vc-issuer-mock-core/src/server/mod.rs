@@ -1,13 +1,9 @@
-#[cfg(feature = "bin")]
-pub mod log_req_res_body;
-
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use axum::{middleware, routing::post, Extension, Router};
-use log_req_res_body::log_req_res_body;
 use tokio::net::TcpListener;
 use tracing::info;
-use vc_issuer_mock_core::{endpoints::vc_api, IssuerKeys};
+use vc_issuer_mock_core::{axum_middlewares::log_req_res_body, endpoints::vc_api, IssuerKeys};
 
 #[tokio::main]
 async fn main() {

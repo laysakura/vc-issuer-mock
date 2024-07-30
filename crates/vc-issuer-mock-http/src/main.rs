@@ -8,6 +8,7 @@ pub(crate) mod templates;
 pub mod test_tracing;
 
 use axum::{
+    middleware,
     routing::{get, post},
     Extension, Router,
 };
@@ -15,6 +16,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio::net::TcpListener;
 use tracing::info;
 use vc_issuer_mock_core::{
+    axum_middlewares::log_req_res_body,
     endpoints::{
         oid4vci::{self, CredentialOffer, IssuerMetadata},
         vc_api,
@@ -57,7 +59,8 @@ async fn main() {
         .layer(Extension(issuer_keys))
         .layer(Extension(credential_offer))
         .layer(Extension(templates))
-        .layer(Extension(metadata));
+        .layer(Extension(metadata))
+        .layer(middleware::from_fn(log_req_res_body));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), settings.port);
     let listener = TcpListener::bind(&addr)

@@ -5,6 +5,8 @@ pub use issuer_keys::IssuerKeys;
 
 pub mod endpoints;
 
+pub mod axum_middlewares;
+
 pub(crate) mod vcdm_v2;
 pub(crate) mod verification_method;
 

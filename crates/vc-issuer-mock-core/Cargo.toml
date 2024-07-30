@@ -13,7 +13,7 @@ rust-version.workspace = true
 edition.workspace = true
 
 [features]
-bin = ["dep:http-body-util", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
+bin = ["dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
 
 [[bin]]
 name = "vc-issuer-mock-core"
@@ -25,6 +25,7 @@ anyhow.workspace = true
 axum.workspace = true
 derive_more.workspace = true
 http.workspace = true
+http-body-util.workspace = true
 josekit.workspace = true
 json-syntax.workspace = true
 serde.workspace = true
@@ -35,9 +36,8 @@ thiserror.workspace = true
 tracing.workspace = true
 urlencoding.workspace = true
 
-http-body-util = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
-tower-http = { workspace = true, optional = true}
+tower-http = { workspace = true, optional = true }
 tracing-subscriber = { workspace = true, optional = true }
 
 [dev-dependencies]
