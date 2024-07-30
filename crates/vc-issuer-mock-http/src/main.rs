@@ -16,7 +16,7 @@ use tokio::net::TcpListener;
 use tracing::info;
 use vc_issuer_mock_core::{
     endpoints::{
-        oid4vci::{self, CredentialOffer},
+        oid4vci::{self, CredentialOffer, IssuerMetadata},
         vc_api,
     },
     IssuerKeys,
@@ -32,13 +32,17 @@ async fn main() {
     let issuer_keys = IssuerKeys::default();
     let credential_offer = CredentialOffer::new(&settings.issuer_id);
     let templates = init_templates();
+    let metadata = IssuerMetadata::new(&settings.issuer_id, &settings.oauth2_server);
 
-    let vc_api_router =
-        Router::new().route("/credentials//issue", post(vc_api::credentials::issue));
+    let vc_api_router = Router::new().route("/credentials/issue", post(vc_api::credentials::issue));
 
     let oid4vci_router = Router::new()
         .route("/credentials", post(oid4vci::credential))
-        .route("/credential-offer", post(oid4vci::credential_offer));
+        .route("/credential-offer", post(oid4vci::credential_offer))
+        .route(
+            "/.well-known/openid-credential-issuer",
+            get(oid4vci::metadata),
+        );
 
     let custom_router =
         Router::new().route("/credential-offer", get(custom::credential_offer::show));
@@ -49,7 +53,8 @@ async fn main() {
         .nest("/custom", custom_router)
         .layer(Extension(issuer_keys))
         .layer(Extension(credential_offer))
-        .layer(Extension(templates));
+        .layer(Extension(templates))
+        .layer(Extension(metadata));
 
     let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), settings.port);
     let listener = TcpListener::bind(&addr)

@@ -4,7 +4,7 @@ pub(crate) mod credential_offer;
 pub use credential_offer::CredentialOffer;
 
 use crate::{endpoints::vc_api::vc_api_error::VcApiError, IssuerKeys};
-use axum::{Extension, Json};
+use axum::{http::Uri, Extension, Json};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -31,15 +31,30 @@ pub struct CredentialOfferResponse {
     credential_offer: String,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct WellKnownCredentialIssuer {
+/// [Credential Issuer Metadata](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html#name-credential-issuer-metadata).
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct IssuerMetadata {
     credential_issuer: String,
-    authorization_servers: String,
+    authorization_servers: Vec<String>,
     credential_endpoint: String,
     credential_configurations_supported: Vec<CredentialConfiguration>,
 }
 
-#[derive(Serialize, Deserialize)]
+impl IssuerMetadata {
+    /// Create a new `IssuerMetadata`.
+    pub fn new(credential_issuer: &Uri, authorization_server: &Uri) -> Self {
+        Self {
+            credential_issuer: credential_issuer.to_string(),
+            authorization_servers: vec![authorization_server.to_string()],
+            credential_endpoint: format!("{credential_issuer}/credentials"),
+            credential_configurations_supported: vec![CredentialConfiguration {
+                format: "ldp_vc".to_string(),
+            }],
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct CredentialConfiguration {
     format: String,
 }
@@ -67,15 +82,10 @@ pub async fn credential_offer(
     }))
 }
 
+/// Endpoint for Credential Issuer Metadata.
+///
+/// [`GET /.well-known/openid-credential-issuer`](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html#name-credential-issuer-metadata-)
 #[axum::debug_handler]
-pub async fn well_known_credential_issuer() -> Json<WellKnownCredentialIssuer> {
-    // Implement the logic for the well-known credential issuer endpoint
-    Json(WellKnownCredentialIssuer {
-        credential_issuer: "https://github.com/laysakura/vc-issuer-mock".to_string(),
-        authorization_servers: "http://localhost:???/".to_string(),
-        credential_endpoint: "http://localhost:{ISSMOCK_PORT}/credential".to_string(),
-        credential_configurations_supported: vec![CredentialConfiguration {
-            format: "ldp_vc".to_string(),
-        }],
-    })
+pub async fn metadata(Extension(metadata): Extension<IssuerMetadata>) -> Json<IssuerMetadata> {
+    Json(metadata)
 }
