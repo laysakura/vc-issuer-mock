@@ -7,7 +7,7 @@ use axum::{
 use http::Request;
 
 use crate::{
-    endpoints::res::error_res::ErrorRes,
+    endpoints::res::error_res::VcApiErrorRes,
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
 };
 
@@ -20,7 +20,7 @@ where
     axum::Json<T>: FromRequest<S, Rejection = JsonRejection>,
     S: Send + Sync,
 {
-    type Rejection = ErrorRes;
+    type Rejection = VcApiErrorRes;
 
     async fn from_request(req: Request<Body>, state: &S) -> Result<Self, Self::Rejection> {
         match axum::Json::<T>::from_request(req, state).await {

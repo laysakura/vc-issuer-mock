@@ -10,7 +10,7 @@ Core implementations for VC Issuer Mock. Meant to be used only as a dependency f
 
 Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requires `anyhow::Error` as a cause, `ProblemDetail` helps to add backtraces to some errors defined in other crates.
 
-Use `Result<T, ErrorRes>` for API handler functions.
+Use `Result<T, VcApiErrorRes>` for API handler functions.
 
 `ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
 

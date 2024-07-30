@@ -23,13 +23,13 @@ use crate::{
 #[serde_as]
 #[derive(Debug, Error, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ErrorRes {
+pub(crate) struct VcApiErrorRes {
     #[serde_as(as = "serde_with::FromInto<u16>")]
     pub(crate) status: StatusCode,
     pub(crate) problem_details: ProblemDetails,
 }
 
-impl fmt::Display for ErrorRes {
+impl fmt::Display for VcApiErrorRes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -39,13 +39,13 @@ impl fmt::Display for ErrorRes {
     }
 }
 
-impl IntoResponse for ErrorRes {
+impl IntoResponse for VcApiErrorRes {
     fn into_response(self) -> Response {
         (self.status, Json(self)).into_response()
     }
 }
 
-impl From<ProblemDetails> for ErrorRes {
+impl From<ProblemDetails> for VcApiErrorRes {
     fn from(problem_details: ProblemDetails) -> Self {
         let code = problem_details.code().unwrap_or(0);
 
@@ -64,7 +64,7 @@ impl From<ProblemDetails> for ErrorRes {
     }
 }
 
-impl From<anyhow::Error> for ErrorRes {
+impl From<anyhow::Error> for VcApiErrorRes {
     fn from(e: anyhow::Error) -> Self {
         error!("InternalServerError: {:?}", e);
 
@@ -74,7 +74,7 @@ impl From<anyhow::Error> for ErrorRes {
             e.to_string(),
             e,
         );
-        ErrorRes {
+        VcApiErrorRes {
             status: StatusCode::INTERNAL_SERVER_ERROR,
             problem_details,
         }

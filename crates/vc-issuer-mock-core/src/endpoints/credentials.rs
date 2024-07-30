@@ -18,7 +18,7 @@ use crate::{
     endpoints::{
         req::{json_req::JsonReq, IssueRequest},
         res::{
-            error_res::ErrorRes, success_res::SuccessRes, IssueResponse,
+            error_res::VcApiErrorRes, success_res::SuccessRes, IssueResponse,
             VerifiableCredentialV2DataIntegrity,
         },
     },
@@ -32,7 +32,7 @@ use crate::{
 pub(crate) async fn issue(
     Extension(issuer_keys): Extension<IssuerKeys>,
     JsonReq(req): JsonReq<IssueRequest>,
-) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+) -> Result<SuccessRes<IssueResponse>, VcApiErrorRes> {
     validate_issue_request(&req)?;
 
     let issuer = req.credential.issuer();
@@ -40,7 +40,7 @@ pub(crate) async fn issue(
     let vm = vm_resolver
         .resolve(issuer)
         .await
-        .map_err(|problem_details| ErrorRes {
+        .map_err(|problem_details| VcApiErrorRes {
             status: http::StatusCode::BAD_REQUEST,
             problem_details,
         })?;
@@ -53,12 +53,12 @@ pub(crate) async fn issue(
     })
 }
 
-fn validate_issue_request(req: &IssueRequest) -> Result<(), ErrorRes> {
+fn validate_issue_request(req: &IssueRequest) -> Result<(), VcApiErrorRes> {
     // <https://www.w3.org/TR/vc-data-model-2.0/#credential-subject>
     // > A verifiable credential contains claims about one or more subjects.
     let sub = req.credential.credential_subjects();
     if sub.is_empty() || sub.iter().any(|s| s.is_empty()) {
-        return Err(ErrorRes {
+        return Err(VcApiErrorRes {
             status: http::StatusCode::BAD_REQUEST,
             problem_details: ProblemDetails::new(
                 PredefinedProblemType::MalformedValueError,
@@ -118,7 +118,7 @@ mod tests {
 
     use super::*;
 
-    async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, ErrorRes> {
+    async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, VcApiErrorRes> {
         init_tracing();
 
         let issuer_keys = Extension(IssuerKeys::default());
