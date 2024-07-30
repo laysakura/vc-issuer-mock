@@ -30,9 +30,12 @@ async fn main() {
 
     let settings = Settings::new_from_env();
     let issuer_keys = IssuerKeys::default();
-    let credential_offer = CredentialOffer::new(&settings.issuer_id);
+    let credential_offer = CredentialOffer::new(&settings.to_issuer_oid4vci_base_url());
     let templates = init_templates();
-    let metadata = IssuerMetadata::new(&settings.issuer_id, &settings.oauth2_server);
+    let metadata = IssuerMetadata::new(
+        &settings.to_issuer_oid4vci_base_url(),
+        &settings.oauth2_server,
+    );
 
     let vc_api_router = Router::new().route("/credentials/issue", post(vc_api::credentials::issue));
 

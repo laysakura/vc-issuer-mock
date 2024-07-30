@@ -6,8 +6,6 @@ pub use issuer_keys::IssuerKeys;
 pub mod endpoints;
 
 pub(crate) mod vcdm_v2;
-pub use vcdm_v2::VC_DEFAULT_ISSUER_ID;
-
 pub(crate) mod verification_method;
 
 #[cfg(test)]
