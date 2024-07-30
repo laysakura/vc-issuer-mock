@@ -3,18 +3,10 @@
 pub mod issuer_keys;
 pub use issuer_keys::IssuerKeys;
 
-pub(crate) mod endpoints;
+pub mod endpoints;
+
 pub(crate) mod vcdm_v2;
 pub(crate) mod verification_method;
-
-use axum::{routing::post, Extension, Router};
-
-/// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
-pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
-    Router::new()
-        .route("/credentials/issue", post(endpoints::credentials::issue))
-        .layer(Extension(issuer_keys))
-}
 
 #[cfg(test)]
 pub mod test_jwks;
@@ -37,6 +29,8 @@ mod tests {
         body::{to_bytes, Body},
         extract::Request,
         response::IntoResponse,
+        routing::post,
+        Extension, Router,
     };
     use serde_json::Value;
     use tower::ServiceExt;
@@ -44,13 +38,18 @@ mod tests {
     /// Call POST /credentials/issue with the given request body.
     /// Returns the response body as `serde_json::Value`.
     ///
-    /// Returned response can be either of [`IssueResponse`](crate::endpoints::res::IssueResponse) or
-    /// [`ErrorRes`](crate::endpoints::res::error_res::ErrorRes).
+    /// Returned response can be either of [`IssueResponse`](crate::endpoints::vc_apires::IssueResponse) or
+    /// [`ErrorRes`](crate::endpoints::vc_apires::vc_api_error::ErrorRes).
     async fn issue(req_body: &str) -> Value {
         init_tracing();
 
         let issuer_keys = IssuerKeys::default();
-        let app = vc_api_router(issuer_keys);
+        let app = Router::new()
+            .route(
+                "/credentials/issue",
+                post(endpoints::vc_api::credentials::issue),
+            )
+            .layer(Extension(issuer_keys));
 
         let req = Request::builder()
             .method("POST")
@@ -123,7 +122,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_issue_non_json_req_error_res() {
+    async fn test_issue_non_json_req_vc_api_error() {
         test_issue_req_serialize_error("INVALID-AS-JSON", PredefinedProblemType::ParsingError)
             .await;
     }

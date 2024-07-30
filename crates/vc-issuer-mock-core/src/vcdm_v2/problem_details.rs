@@ -7,7 +7,7 @@ use ssi::{
     verification_methods::VerificationMethodResolutionError,
 };
 
-use crate::endpoints::res::error_res::custom_problem_types::CustomProblemType;
+use crate::endpoints::vc_api::res::vc_api_error::custom_problem_types::CustomProblemType;
 
 /// [Problem Details](https://www.w3.org/TR/vc-data-model-2.0/#problem-details).
 ///

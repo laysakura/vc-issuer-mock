@@ -1,6 +1,4 @@
-//! VC-API endpoints.
+pub mod success_res;
+pub use success_res::SuccessRes;
 
-pub(crate) mod req;
-pub(crate) mod res;
-
-pub(crate) mod credentials;
+pub mod vc_api;

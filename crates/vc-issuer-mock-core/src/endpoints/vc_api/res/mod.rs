@@ -1,7 +1,6 @@
 //! Responses of VC-API endpoints.
 
-pub(crate) mod error_res;
-pub(crate) mod success_res;
+pub mod vc_api_error;
 
 use serde::Serialize;
 use ssi::{
@@ -17,10 +16,10 @@ pub(crate) type VerifiableCredentialV2DataIntegrity =
 /// Response body of `POST /credentials/issue`.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct IssueResponse {
+pub struct IssueResponse {
     /// A JSON-LD Verifiable Credential with a proof.
     #[serde(flatten)]
-    pub(crate) verifiable_credential: VerifiableCredentialV2DataIntegrity,
+    pub verifiable_credential: VerifiableCredentialV2DataIntegrity,
     // TODO EnvelopedVerifiableCredential
 }
 
