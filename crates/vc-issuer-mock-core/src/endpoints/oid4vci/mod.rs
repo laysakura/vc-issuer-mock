@@ -37,7 +37,8 @@ pub struct IssuerMetadata {
     credential_issuer: String,
     authorization_servers: Vec<String>,
     credential_endpoint: String,
-    credential_configurations_supported: Vec<CredentialConfiguration>,
+    /// Credential Configurations. Currently only `vc-issuer-mock` is supported.
+    credential_configurations_supported: HashMap<String, CredentialConfiguration>,
 }
 
 impl IssuerMetadata {
@@ -47,9 +48,14 @@ impl IssuerMetadata {
             credential_issuer: credential_issuer.to_string(),
             authorization_servers: vec![authorization_server.to_string()],
             credential_endpoint: format!("{credential_issuer}/credentials"),
-            credential_configurations_supported: vec![CredentialConfiguration {
-                format: "ldp_vc".to_string(),
-            }],
+            credential_configurations_supported: vec![(
+                "vc-issuer-mock".to_string(),
+                CredentialConfiguration {
+                    format: "ldp_vc".to_string(),
+                },
+            )]
+            .into_iter()
+            .collect(),
         }
     }
 }
