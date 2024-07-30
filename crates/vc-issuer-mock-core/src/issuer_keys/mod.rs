@@ -8,6 +8,7 @@ use josekit::jwk::{
 };
 use ssi::{
     claims::SignatureError,
+    dids::DIDKey,
     verification_methods::{LocalSigner, MaybeJwkVerificationMethod, Signer},
     JWK,
 };
@@ -191,6 +192,11 @@ impl SigningKey {
 
         Ok(Self(jwk))
     }
+
+    /// Convert the signing key into a JWK string.
+    pub fn to_private_jwk(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl VerificationKey {
@@ -226,6 +232,19 @@ impl VerificationKey {
         };
 
         Ok(Self(jwk))
+    }
+
+    /// Convert the verification key into a JWK string.
+    pub fn to_public_jwk(&self) -> String {
+        self.to_string()
+    }
+
+    /// Convert the verification key into a DID key string.
+    pub fn to_did_key(&self) -> String {
+        let ssi_jwk = JWK::from(self);
+        let did_key = DIDKey::generate(&ssi_jwk)
+            .expect(format!("Failed to generate DID key from JWK: {}", ssi_jwk).as_str());
+        did_key.to_string()
     }
 }
 

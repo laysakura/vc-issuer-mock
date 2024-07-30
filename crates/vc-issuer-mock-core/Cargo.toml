@@ -13,7 +13,13 @@ rust-version.workspace = true
 edition.workspace = true
 
 [features]
+keypair = ["dep:tracing-subscriber"]
 server = ["dep:http-body-util", "dep:tokio", "dep:tower-http", "dep:tracing-subscriber"]
+
+[[bin]]
+name = "gen-keypair"
+path = "src/gen_keypair/mod.rs"
+required-features = ["keypair"]
 
 [[bin]]
 name = "vc-issuer-mock-core"
