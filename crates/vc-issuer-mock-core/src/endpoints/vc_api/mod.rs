@@ -3,4 +3,4 @@
 pub(crate) mod req;
 pub(crate) mod res;
 
-pub(crate) mod credentials;
+pub mod credentials;

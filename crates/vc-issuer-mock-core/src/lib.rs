@@ -3,21 +3,10 @@
 pub mod issuer_keys;
 pub use issuer_keys::IssuerKeys;
 
-pub(crate) mod endpoints;
+pub mod endpoints;
+
 pub(crate) mod vcdm_v2;
 pub(crate) mod verification_method;
-
-use axum::{routing::post, Extension, Router};
-
-/// Create a new `axum::Router` implementing the [VC-API](https://w3c-ccg.github.io/vc-api/).
-pub fn vc_api_router(issuer_keys: IssuerKeys) -> Router {
-    Router::new()
-        .route(
-            "/credentials/issue",
-            post(endpoints::vc_api::credentials::issue),
-        )
-        .layer(Extension(issuer_keys))
-}
 
 #[cfg(test)]
 pub mod test_jwks;
@@ -40,6 +29,8 @@ mod tests {
         body::{to_bytes, Body},
         extract::Request,
         response::IntoResponse,
+        routing::post,
+        Extension, Router,
     };
     use serde_json::Value;
     use tower::ServiceExt;
@@ -53,7 +44,12 @@ mod tests {
         init_tracing();
 
         let issuer_keys = IssuerKeys::default();
-        let app = vc_api_router(issuer_keys);
+        let app = Router::new()
+            .route(
+                "/credentials/issue",
+                post(endpoints::vc_api::credentials::issue),
+            )
+            .layer(Extension(issuer_keys));
 
         let req = Request::builder()
             .method("POST")

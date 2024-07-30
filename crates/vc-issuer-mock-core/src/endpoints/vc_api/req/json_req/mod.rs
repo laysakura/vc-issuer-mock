@@ -11,8 +11,9 @@ use crate::{
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
 };
 
+/// A wrapper for `axum::Json` to handle JSON parse errors.
 #[derive(Clone, Debug)]
-pub(crate) struct JsonReq<T>(pub(crate) T);
+pub struct JsonReq<T>(pub(crate) T);
 
 #[async_trait]
 impl<S, T> FromRequest<S> for JsonReq<T>

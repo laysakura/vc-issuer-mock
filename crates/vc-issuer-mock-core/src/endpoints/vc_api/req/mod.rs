@@ -20,7 +20,9 @@ use crate::{
 #[serde_as]
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub(crate) struct IssueRequest {
+pub struct IssueRequest {
+    /// `credential` property.
+    ///
     /// Currently, we do not support VCDM v1.
     ///
     /// A request parameter not always contains all necessary properties as VCDM v2.
@@ -29,20 +31,22 @@ pub(crate) struct IssueRequest {
     ///
     /// [`self::VerifiableCredentialV2WithDefault`] is a wrapper struct to provide default values for missing properties.
     #[serde_as(as = "VerifiableCredentialV2WithDefault")]
-    pub(crate) credential: VerifiableCredentialV2,
+    pub credential: VerifiableCredentialV2,
+
+    /// `options` property.
     #[serde(default)]
-    pub(crate) options: IssueRequestOptions,
+    pub options: IssueRequestOptions,
 }
 
 /// `options` field in [`self::IssueRequest``].
 #[derive(Clone, Debug, Default, Deserialize)]
 #[serde_as]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub(crate) struct IssueRequestOptions {
+pub struct IssueRequestOptions {
     #[serde_as(as = "Option<Vec<DisplayFromStr>>")]
-    pub(crate) mandatory_pointers: Option<Vec<JsonPointerBuf>>,
+    pub mandatory_pointers: Option<Vec<JsonPointerBuf>>,
     #[allow(dead_code)]
-    pub(crate) credential_id: Option<String>,
+    pub credential_id: Option<String>,
 }
 
 struct VerifiableCredentialV2WithDefault;

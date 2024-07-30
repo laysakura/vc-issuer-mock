@@ -19,11 +19,11 @@ use crate::{
     vcdm_v2::problem_details::{ProblemDetails, ProblemType},
 };
 
-/// The error response body used in vc-issuer-mock family.
+/// The error response body used in VC-API.
 #[serde_as]
 #[derive(Debug, Error, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct VcApiErrorRes {
+pub struct VcApiErrorRes {
     #[serde_as(as = "serde_with::FromInto<u16>")]
     pub(crate) status: StatusCode,
     pub(crate) problem_details: ProblemDetails,

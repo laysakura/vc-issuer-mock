@@ -15,12 +15,12 @@ use ssi::{
 };
 
 use crate::{
-    endpoints::vc_api::{
-        req::{json_req::JsonReq, IssueRequest},
-        res::{
-            error_res::VcApiErrorRes, success_res::SuccessRes, IssueResponse,
-            VerifiableCredentialV2DataIntegrity,
+    endpoints::{
+        vc_api::{
+            req::{json_req::JsonReq, IssueRequest},
+            res::{error_res::VcApiErrorRes, IssueResponse, VerifiableCredentialV2DataIntegrity},
         },
+        SuccessRes,
     },
     vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
     verification_method::{CustomVerificationMethodResolver, VerificationMethod},
@@ -29,7 +29,7 @@ use crate::{
 
 /// `POST /credentials/issue``
 #[axum::debug_handler]
-pub(crate) async fn issue(
+pub async fn issue(
     Extension(issuer_keys): Extension<IssuerKeys>,
     JsonReq(req): JsonReq<IssueRequest>,
 ) -> Result<SuccessRes<IssueResponse>, VcApiErrorRes> {
