@@ -6,6 +6,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - crates/vc-issuer-mock-core/**
+      - docker/vc-issuer-mock-core/**
       # workflow file
       - .github/workflows/test-docker-test-suites.yaml
       - .github/workflows/test-docker-test-suites/**
