@@ -1,5 +1,6 @@
 use oid4vci::credential_offer::{
-    CredentialOffer as oid4vci_CredentialOffer, CredentialOfferParameters,
+    AuthorizationCode, CredentialOffer as oid4vci_CredentialOffer, CredentialOfferParameters,
+    Grants,
 };
 use url::Url;
 
@@ -17,10 +18,21 @@ impl CredentialOffer {
         // Hard-coded. If VC Issuer Mock provides multiple credential configurations, this should be changed.
         let credential_configuration_ids = vec!["UniversityDegree_LDP_VC".to_string()];
 
+        // Grant: https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html#section-4.1.1-4.1.1
+        // Currently, only Authorization Code Flow is supported.
+        let grants = Grants {
+            authorization_code: Some(AuthorizationCode {
+                // TODO support issuer_state
+                issuer_state: None,
+                authorization_server: None,
+            }),
+            pre_authorized_code: None,
+        };
+
         let parameters = CredentialOfferParameters {
             credential_issuer: credential_issuer.clone(),
             credential_configuration_ids,
-            grants: None,
+            grants: Some(grants),
         };
 
         Self {
