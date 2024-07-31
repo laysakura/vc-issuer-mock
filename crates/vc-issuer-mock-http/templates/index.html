@@ -20,6 +20,7 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 80vw;
         }
         h1 {
             color: #333;
@@ -35,6 +36,12 @@
             margin-top: 1rem;
             max-width: 200px;
         }
+        .url-container {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -43,7 +50,9 @@
         <p>Launch your wallet. Scan the QR code or input the link to start the OID4VCI flow.</p>
         <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
         <br>
-        <a href="{{ url | safe }}">{{ url }}</a>
+        <div class="url-container">
+            <a href="{{ url | safe }}">{{ url }}</a>
+        </div>
     </div>
 </body>
 </html>
