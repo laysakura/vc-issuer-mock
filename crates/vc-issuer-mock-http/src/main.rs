@@ -7,6 +7,7 @@ pub(crate) mod templates;
 #[cfg(test)]
 pub mod test_tracing;
 
+use ::oid4vci::credential_issuer::credential_issuer_metadata::CredentialIssuerMetadata;
 use axum::{
     middleware,
     routing::{get, post},
@@ -18,7 +19,7 @@ use tracing::info;
 use vc_issuer_mock_core::{
     axum_middlewares::log_req_res_body,
     endpoints::{
-        oid4vci::{self, CredentialOffer, IssuerMetadata},
+        oid4vci::{self, CredentialOffer},
         vc_api,
     },
     IssuerKeys,
@@ -34,10 +35,7 @@ async fn main() {
     let issuer_keys = IssuerKeys::default();
     let credential_offer = CredentialOffer::new(&settings.to_issuer_oid4vci_base_url());
     let templates = init_templates();
-    let metadata = IssuerMetadata::new(
-        &settings.to_issuer_oid4vci_base_url(),
-        &settings.oauth2_server,
-    );
+    let metadata = CredentialIssuerMetadata::from(&settings);
 
     let vc_api_router = Router::new().route("/credentials/issue", post(vc_api::credentials::issue));
 

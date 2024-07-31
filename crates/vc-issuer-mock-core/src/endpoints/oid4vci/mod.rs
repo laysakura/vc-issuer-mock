@@ -2,6 +2,7 @@
 
 pub(crate) mod credential_offer;
 pub use credential_offer::CredentialOffer;
+use oid4vci::credential_issuer::credential_issuer_metadata::CredentialIssuerMetadata;
 
 use crate::{endpoints::vc_api::vc_api_error::VcApiError, IssuerKeys};
 use axum::{http::Uri, Extension, Json};
@@ -60,6 +61,7 @@ impl IssuerMetadata {
     }
 }
 
+/// Credential Configuration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct CredentialConfiguration {
     format: String,
@@ -92,6 +94,8 @@ pub async fn credential_offer(
 ///
 /// [`GET /.well-known/openid-credential-issuer`](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html#name-credential-issuer-metadata-)
 #[axum::debug_handler]
-pub async fn metadata(Extension(metadata): Extension<IssuerMetadata>) -> Json<IssuerMetadata> {
+pub async fn metadata(
+    Extension(metadata): Extension<CredentialIssuerMetadata>,
+) -> Json<CredentialIssuerMetadata> {
     Json(metadata)
 }

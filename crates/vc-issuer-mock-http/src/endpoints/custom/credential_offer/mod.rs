@@ -37,8 +37,8 @@ mod tests {
     use std::io::Write;
     use std::str::FromStr;
 
-    use axum::http::Uri;
     use tempfile::Builder;
+    use url::Url;
 
     use crate::{templates::init_templates, test_tracing::init_tracing};
 
@@ -49,7 +49,7 @@ mod tests {
         init_tracing();
 
         let templates = init_templates();
-        let credential_offer = CredentialOffer::new(&Uri::from_str("https://example.com").unwrap());
+        let credential_offer = CredentialOffer::new(&Url::from_str("https://example.com").unwrap());
 
         let res = show(Extension(credential_offer), Extension(templates)).await;
         let html = res.0;
