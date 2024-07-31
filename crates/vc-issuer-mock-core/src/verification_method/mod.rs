@@ -29,10 +29,6 @@ use crate::{
 pub(crate) struct VerificationMethod(AnyMethod);
 
 impl VerificationMethod {
-    pub(crate) fn as_any_method(&self) -> &AnyMethod {
-        &self.0
-    }
-
     pub(crate) fn try_to_jwk(&self) -> Result<JWK, ProblemDetails> {
         self.0
             .try_to_jwk()

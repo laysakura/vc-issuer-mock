@@ -248,8 +248,9 @@ impl VerificationKey {
     /// Convert the verification key into a DID key string.
     pub fn to_did_key(&self) -> String {
         let ssi_jwk = JWK::from(self);
-        let did_key = DIDKey::generate(&ssi_jwk)
-            .expect(format!("Failed to generate DID key from JWK: {}", ssi_jwk).as_str());
+        let did_key = DIDKey::generate(&ssi_jwk).unwrap_or_else(|_| {
+            panic!("Failed to generate DID key from JWK: {}", ssi_jwk).as_str()
+        });
         did_key.to_string()
     }
 
