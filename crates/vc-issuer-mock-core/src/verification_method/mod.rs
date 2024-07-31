@@ -9,7 +9,7 @@ use anyhow::anyhow;
 use ssi::{
     claims::vc::syntax::{IdOr, IdentifiedObject},
     dids::{AnyDidMethod, DIDResolver, VerificationMethodDIDResolver, DID},
-    json_ld::iref,
+    json_ld::{iref, IriBuf},
     prelude::AnySuite,
     verification_methods::{
         AnyMethod, GenericVerificationMethod, InvalidVerificationMethod, JsonWebKey2020,
@@ -66,9 +66,20 @@ impl VerificationMethod {
             )
         })
     }
+
+    /// # Panics
+    ///
+    /// If the verification method is not supported.
+    pub(crate) fn to_id_iri(&self) -> IriBuf {
+        match &self.0 {
+            AnyMethod::Multikey(multikey) => multikey.id.clone(),
+            AnyMethod::JsonWebKey2020(jwk) => jwk.id.clone(),
+            _ => unimplemented!("Unsupported verification method type: {:?}", self.0),
+        }
+    }
 }
 
-/// Verification method resolver. Currently supports DID or JWK methods.
+/// Verification method resolver. Currently supports `did:key` or JWK methods.
 pub(crate) struct CustomVerificationMethodResolver {
     did_resolver: VerificationMethodDIDResolver<AnyDidMethod, AnyMethod>,
     issuer_keys: IssuerKeys,
@@ -90,16 +101,11 @@ impl CustomVerificationMethodResolver {
         issuer: &IdOr<IdentifiedObject>,
     ) -> Result<VerificationMethod, ProblemDetails> {
         let vm_method = self
-            .resolve_verification_method(
-                Some(issuer.id().as_iri()),
-                // これNoneだとエラーだわ
-                None,
-            )
+            .resolve_verification_method(Some(issuer.id().as_iri()), None)
             .await?;
         Ok(VerificationMethod(vm_method.into_owned()))
     }
 
-    // Similar codes to: <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/dids.rs#L131-L183>.
     async fn resolve_by_method(
         &self,
         issuer: Option<&iref::Iri>,
@@ -161,12 +167,12 @@ impl CustomVerificationMethodResolver {
             })?
             .to_owned();
 
-        // Pick the first issuer key (JWK)
+        // Pick an issuer key (JWK) for [JsonWebSignature2020](https://w3c.github.io/vc-jws-2020/).
         let public_key = self
             .issuer_keys
             .key_pairs()
-            .first()
-            .map(|(_, vk)| JWK::from(vk))
+            .iter()
+            .find_map(|(_, vk)| vk.is_for_jwk2020().then(|| JWK::from(vk)))
             .ok_or_else(|| {
                 VerificationMethodResolutionError::InvalidVerificationMethod(
                     ssi::verification_methods::InvalidVerificationMethod::UnsupportedMethodType(
@@ -187,9 +193,6 @@ impl CustomVerificationMethodResolver {
 impl VerificationMethodResolver for CustomVerificationMethodResolver {
     type Method = AnyMethod;
 
-    // Similar codes to:
-    // - <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/dids.rs#L131-L183>.
-    // - <https://github.com/spruceid/didkit-http/blob/a10928734de046074b3dbde05bb4c3db02ce5d10/src/credentials.rs#L91-L121>
     async fn resolve_verification_method_with(
         &self,
         issuer: Option<&iref::Iri>,

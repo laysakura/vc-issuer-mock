@@ -54,3 +54,11 @@ pub const JWK_OKP_ED25519_PUB: &str = r#"{
   "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
 }
 "#;
+
+/// Same one used in `docker/vc-issuer-mock-core/env`.
+pub const ISSMOCK_PRIV_OKP_ED25519: &str = r#"{"kty":"OKP","use":"sig","crv":"Ed25519","d":"uACpBLNoNFWd70B2I-Dq41LS6YfBsaMN609VQcynLbc","x":"RP2fVkXQcK7ZARnqeLMyJAU5Nje03RT0pd7Eqwn6_f8"}"#;
+pub const ISSMOCK_PRIV_OKP_ED25519_DIDKEY: &str = "did:key:z6Mkj6a5Em4zUEqJMdmSjyUk3dBz5SEt2xtjtUmfmunTxS62";
+
+/// Same one used in `docker/vc-issuer-mock-core/env`.
+pub const ISSMOCK_PRIV_EC_P384: &str = r#"{"kty":"EC","crv":"P-384","d":"G4DfV3HrerhDlTrVWJgbJ3njPCMXFrkuqYn-_0LmbYovhtUWHpicFjzMR27wMdFL","x":"8NVw26mAY930CF9L0Y2mBvtuLD89TAKjp22eWwHGGuos0UTUZxVoolYy-o168U6G","y":"QUCWiWwQAD2chrwhT2Z-fiMCAuVBzktVpYFjg6eztkQZW8u4pQtug67oZxuSxaOK"}"#;
+pub const ISSMOCK_PRIV_EC_P384_DIDKEY: &str = "did:key:z82LkuMX2ytXFQNhevUBGhCwC2jgmRnnkcvRei7ugsF2R1DkTMf3dULMsPcV4yzhCmGsBU1";

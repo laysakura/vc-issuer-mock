@@ -135,9 +135,15 @@ impl IssuerKeys {
 
     /// Find the signing key corresponding to the given verification key.
     pub fn find_signing_key_from(&self, verification_key: &VerificationKey) -> Option<SigningKey> {
-        self.key_pairs()
-            .iter()
-            .find_map(|(sk, vk)| (vk == verification_key).then(|| sk.clone()))
+        self.key_pairs().iter().find_map(|(sk, vk)| {
+            // Caller might drop some attributes, at least "use".
+            // Set it for Eq comparison.
+            let mut target_vk = verification_key.clone();
+            if let Some(key_use) = vk.0.key_use() {
+                target_vk.0.set_key_use(key_use);
+            }
+            (vk == &target_vk).then(|| sk.clone())
+        })
     }
 
     pub(crate) fn into_local_signer(self) -> LocalSigner<Self> {
@@ -245,6 +251,11 @@ impl VerificationKey {
         let did_key = DIDKey::generate(&ssi_jwk)
             .expect(format!("Failed to generate DID key from JWK: {}", ssi_jwk).as_str());
         did_key.to_string()
+    }
+
+    pub(crate) fn is_for_jwk2020(&self) -> bool {
+        // FIXME <https://w3c.github.io/vc-jws-2020/>
+        matches!(self.0.key_type(), "EC")
     }
 }
 
