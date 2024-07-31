@@ -17,7 +17,7 @@ RUN git clone https://github.com/spruceid/didkit-http.git && \
 # COPY and build vc-issuer-mock-core
 COPY . /usr/src/app/vc-issuer-mock
 WORKDIR /usr/src/app/vc-issuer-mock
-RUN cargo build -p vc-issuer-mock-core --bin vc-issuer-mock-core --features="bin"
+RUN cargo build -p vc-issuer-mock-core --bin vc-issuer-mock-core --features="server"
 
 # Layer2: Copy built binaries and run them in lightweight container
 FROM debian:bookworm-slim

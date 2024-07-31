@@ -87,3 +87,45 @@ pub mod vc_issuer_api_openapi_spec {
   }
 }"#;
 }
+
+pub mod misc {
+    use const_format::concatcp;
+
+    use crate::test_jwks::{ISSMOCK_PRIV_EC_P384_DIDKEY, ISSMOCK_PRIV_OKP_ED25519_DIDKEY};
+
+    pub const ISSUER_DIDKEY_OKP_ED25519: &str = concatcp!(
+        r#"
+{"credential": {
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "type": [
+    "VerifiableCredential"
+  ],
+  "credentialSubject": {
+    "id": "did:example:subject"
+  },
+  "issuer": ""#,
+        ISSMOCK_PRIV_OKP_ED25519_DIDKEY,
+        r#""
+}}"#
+    );
+
+    pub const ISSUER_DIDKEY_EC_P384: &str = concatcp!(
+        r#"
+{"credential": {
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "type": [
+    "VerifiableCredential"
+  ],
+  "credentialSubject": {
+    "id": "did:example:subject"
+  },
+  "issuer": ""#,
+        ISSMOCK_PRIV_EC_P384_DIDKEY,
+        r#""
+}}"#
+    );
+}

@@ -12,7 +12,7 @@ module.exports = {
       implementation: "vc-issuer-mock-core (local test)",
       issuers: [
         {
-          id: "https://github.com/laysakura/vc-issuer-mock",
+          id: "did:key:z6Mkj6a5Em4zUEqJMdmSjyUk3dBz5SEt2xtjtUmfmunTxS62",
           endpoint: `${baseUrl}/credentials/issue`,
           tags: ["vc2.0"],
         },
