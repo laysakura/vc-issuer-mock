@@ -44,7 +44,7 @@ docker build  -t vc-issuer-mock-core -f docker/vc-issuer-mock-core/Dockerfile .
 ### Run locally
 
 ```console
-docker run --rm --name vc-issuer-mock-core -p 8000:80 vc-issuer-mock-core
+docker run --rm --name vc-issuer-mock-core --env-file docker/vc-issuer-mock-core/env -p 8000:80 vc-issuer-mock-core
 ```
 
 Call the health endpoint:
