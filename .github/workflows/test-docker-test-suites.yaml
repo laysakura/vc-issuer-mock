@@ -28,7 +28,7 @@ jobs:
 
     - name: Run Docker container
       run: |
-        docker run --rm -d --name vc-issuer-mock-core -p 8000:80 vc-issuer-mock-core
+        docker run --rm -d --name vc-issuer-mock-core --env-file docker/vc-issuer-mock-core/env -p 8000:80 vc-issuer-mock-core
 
     - name: Test healthcheck endpoint
       run: |
