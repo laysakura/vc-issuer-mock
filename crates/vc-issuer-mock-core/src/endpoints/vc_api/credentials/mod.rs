@@ -93,7 +93,7 @@ async fn create_vc_with_data_integrity(
         req.options.mandatory_pointers.clone().unwrap_or_default();
 
     let proof_options = AnyInputOptions {
-        verification_method: Some(ReferenceOrOwned::Owned(vm.as_any_method().clone())),
+        verification_method: Some(ReferenceOrOwned::Reference(vm.to_id_iri())),
         ..Default::default()
     };
 
@@ -116,9 +116,13 @@ mod tests {
     use ssi::{claims::vc::v2::Credential, verification_methods::ProofPurpose};
 
     use crate::{
+        test_jwks::{ISSMOCK_PRIV_EC_P384, ISSMOCK_PRIV_OKP_ED25519},
         test_tracing::init_tracing,
-        test_vc_json::vc_data_model_2_0_test_suite::{
-            CREDENTIAL_OK, CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL, README_ALUMNI,
+        test_vc_json::{
+            misc::{ISSUER_DIDKEY_EC_P384, ISSUER_DIDKEY_OKP_ED25519},
+            vc_data_model_2_0_test_suite::{
+                CREDENTIAL_OK, CREDENTIAL_SUBJECT_NO_CLAIMS_FAIL, README_ALUMNI,
+            },
         },
         vcdm_v2::problem_details::ProblemType as _,
     };
@@ -128,12 +132,18 @@ mod tests {
     async fn issue_(req: IssueRequest) -> Result<SuccessRes<IssueResponse>, VcApiError> {
         init_tracing();
 
-        let issuer_keys = Extension(IssuerKeys::default());
+        let issuer_keys = Extension(IssuerKeys::new(vec![
+            ISSMOCK_PRIV_OKP_ED25519,
+            ISSMOCK_PRIV_EC_P384,
+        ]));
         let req = JsonReq(req);
         issue(issuer_keys, req.clone()).await
     }
 
-    async fn assert_issue_with_data_integrity_proof_success(req: &str) -> anyhow::Result<()> {
+    async fn assert_issue_with_data_integrity_proof_success(
+        req: &str,
+        expected_proof_type: &str,
+    ) -> anyhow::Result<()> {
         let req: IssueRequest = serde_json::from_str(req)?;
 
         let res = issue_(req.clone()).await?;
@@ -176,7 +186,7 @@ mod tests {
             let proof = proofs[0];
 
             // type
-            assert_eq!(format!("{:?}", proof.type_), "JsonWebSignature2020");
+            assert_eq!(format!("{:?}", proof.type_), expected_proof_type);
             // proofPurpose
             assert!(matches!(proof.proof_purpose, ProofPurpose::Assertion));
             // proofValue
@@ -188,12 +198,32 @@ mod tests {
 
     #[tokio::test]
     async fn test_issue_with_data_integrity_proof_success_readme_alumni() -> anyhow::Result<()> {
-        assert_issue_with_data_integrity_proof_success(README_ALUMNI).await
+        assert_issue_with_data_integrity_proof_success(README_ALUMNI, "JsonWebSignature2020").await
     }
 
     #[tokio::test]
     async fn test_issue_with_data_integrity_proof_success_credential_ok() -> anyhow::Result<()> {
-        assert_issue_with_data_integrity_proof_success(CREDENTIAL_OK).await
+        assert_issue_with_data_integrity_proof_success(CREDENTIAL_OK, "JsonWebSignature2020").await
+    }
+
+    #[tokio::test]
+    async fn test_issue_with_data_integrity_proof_success_issuer_didkey_okp_ed25519(
+    ) -> anyhow::Result<()> {
+        assert_issue_with_data_integrity_proof_success(
+            ISSUER_DIDKEY_OKP_ED25519,
+            "Ed25519Signature2018",
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn test_issue_with_data_integrity_proof_success_issuer_didkey_ec_p384(
+    ) -> anyhow::Result<()> {
+        assert_issue_with_data_integrity_proof_success(
+            ISSUER_DIDKEY_EC_P384,
+            "JsonWebSignature2020",
+        )
+        .await
     }
 
     #[tokio::test]
