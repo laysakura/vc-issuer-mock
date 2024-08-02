@@ -1,17 +1,8 @@
 //! Responses of VC-API endpoints.
 
-pub mod vc_api_error;
-
 use serde::Serialize;
-use ssi::{
-    claims::{data_integrity, vc::v2},
-    prelude::DataIntegrity,
-};
 
-pub(crate) type VerifiableCredentialV2 =
-    v2::syntax::SpecializedJsonCredential<json_syntax::Object, (), ()>;
-pub(crate) type VerifiableCredentialV2DataIntegrity =
-    DataIntegrity<VerifiableCredentialV2, data_integrity::AnySuite>;
+use crate::vcdm_v2::VerifiableCredentialV2DataIntegrity;
 
 /// Response body of `POST /credentials/issue`.
 #[derive(Debug, Serialize)]

@@ -4,17 +4,12 @@
 //! section says we MUST return error on unknown fields.
 //! We use #[serde(deny_unknown_fields)] to enforce this.
 
-pub(crate) mod json_req;
-
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use serde_with::{serde_as, DeserializeAs};
 use ssi::claims::data_integrity::JsonPointerBuf;
 
-use crate::{
-    endpoints::vc_api::res::VerifiableCredentialV2,
-    vcdm_v2::default_vc_properties::VC_DEFAULT_ISSUER,
-};
+use crate::vcdm_v2::{default_vc_properties::VC_DEFAULT_ISSUER_ID, VerifiableCredentialV2};
 
 /// Request body for the [`POST /credentials/issue` endpoint](https://w3c-ccg.github.io/vc-api/#issue-credential).
 #[serde_as]
@@ -59,10 +54,12 @@ impl<'de> DeserializeAs<'de, VerifiableCredentialV2> for VerifiableCredentialV2W
         let mut value: Value = Value::deserialize(deserializer)?;
 
         if let Value::Object(ref mut map) = value {
+            // NOTE: vc-issuer-mock-http and other interfaces we implement should pass `issuer` property.
+            // This default value is for other users like W3C test suites.
             if !map.contains_key("issuer") {
                 map.insert(
                     "issuer".to_string(),
-                    Value::String(VC_DEFAULT_ISSUER.to_string()),
+                    Value::String(VC_DEFAULT_ISSUER_ID.to_string()),
                 );
             }
         }

@@ -18,7 +18,13 @@ Use `Result<T, ProblemDetails>` for most functions. Since `ProblemDetails` requi
 
 Use `Result<T, VcApiError>` for API handler functions.
 
-`ProblemDetails::detail` are returned to clients, so it should not include any sensitive information.
+`ProblemDetails::detail` is returned to clients, so it should not include any sensitive information.
+
+### In `crate::endpoints::oid4vci`
+
+Use `Result<T, Oid4vciError>` for most functions. It requires `anyhow::Error` to make backtraces available.
+
+`Oid4vciError::error_description` is returned to clients, so it should not include any sensitive information.
 
 ## Utility bin crates
 
