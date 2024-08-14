@@ -2,6 +2,9 @@
 //!
 //! - `POST /credentials/issue`
 
+pub(crate) mod req;
+pub(crate) mod res;
+
 use anyhow::anyhow;
 use axum::Extension;
 use ssi::{
@@ -17,12 +20,16 @@ use ssi::{
 use crate::{
     endpoints::{
         vc_api::{
-            req::{json_req::JsonReq, IssueRequest},
-            res::{vc_api_error::VcApiError, IssueResponse, VerifiableCredentialV2DataIntegrity},
+            credentials::{req::IssueRequest, res::IssueResponse},
+            json_req::JsonReq,
+            vc_api_error::VcApiError,
         },
         SuccessRes,
     },
-    vcdm_v2::problem_details::{PredefinedProblemType, ProblemDetails},
+    vcdm_v2::{
+        problem_details::{PredefinedProblemType, ProblemDetails},
+        VerifiableCredentialV2DataIntegrity,
+    },
     verification_method::{CustomVerificationMethodResolver, VerificationMethod},
     IssuerKeys,
 };

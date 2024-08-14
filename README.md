@@ -25,7 +25,11 @@ TBD
 
 ## Conformance
 
-All the interfaces provided by this repository depend on [vc-issuer-mock-core](./crates/vc-issuer-mock-core/). This core library implements part of the [VC-API](https://w3c-ccg.github.io/vc-api/) as an Issuer Service.
+All the interfaces provided by this repository depend on [vc-issuer-mock-core](./crates/vc-issuer-mock-core/). This core library implements:
+
+- [Verifiable Credentials Data Model 2.0](https://www.w3.org/TR/vc-data-model/) at its core.
+- [VC-API](https://w3c-ccg.github.io/vc-api/) as an Issuer Service.
+- **TODO** [OID4VCI (OpenID for Verifiable Credential Issuance)](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html) as an Issuer Coordinator.
 
 The vc-issue-mock-core library is tested against the following W3C's test-suites:
 

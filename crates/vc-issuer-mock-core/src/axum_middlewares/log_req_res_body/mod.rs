@@ -7,7 +7,7 @@ use axum::{
 };
 use http_body_util::BodyExt;
 
-/// middleware that shows how to consume the request body upfront
+/// An axum middleware to log request / response.
 pub async fn log_req_res_body(req: Request, next: Next) -> Result<impl IntoResponse, Response> {
     let path = &req.uri().path().to_string();
 

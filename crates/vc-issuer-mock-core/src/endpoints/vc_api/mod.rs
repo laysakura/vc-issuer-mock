@@ -1,6 +1,5 @@
 //! VC-API endpoints.
 
-pub(crate) mod req;
-pub(crate) mod res;
-
 pub mod credentials;
+pub mod json_req;
+pub mod vc_api_error;

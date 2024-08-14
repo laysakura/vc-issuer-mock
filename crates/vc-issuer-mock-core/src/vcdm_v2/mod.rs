@@ -5,5 +5,18 @@
 //!
 //! So the implementations in this module are potentially pull-requested to the ssi crate.
 
+use ssi::{
+    claims::{data_integrity, vc::v2},
+    prelude::DataIntegrity,
+};
+
+/// VCDM v2 without proof.
+pub type VerifiableCredentialV2 =
+    v2::syntax::SpecializedJsonCredential<json_syntax::Object, (), ()>;
+
+/// VCDM v2 with data integrity proof.
+pub type VerifiableCredentialV2DataIntegrity =
+    DataIntegrity<VerifiableCredentialV2, data_integrity::AnySuite>;
+
 pub(crate) mod default_vc_properties;
 pub(crate) mod problem_details;
