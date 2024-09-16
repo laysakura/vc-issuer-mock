@@ -16,7 +16,7 @@ edition = "2021"
 [workspace.dependencies]
 vc-issuer-mock-core = { path = "crates/vc-issuer-mock-core", version = "0.1.0" }
 
-anyhow = "1.0.87"
+anyhow = "1.0.89"
 axum = { version = "0.7.5", features = ["macros"] }
 const_format = "0.2.33"
 derive_more = "0.99.18"
