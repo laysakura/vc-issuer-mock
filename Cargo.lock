@@ -2268,7 +2268,7 @@ dependencies = [
  "httpdate",
  "itoa",
  "pin-project-lite",
- "socket2 0.5.7",
+ "socket2 0.4.10",
  "tokio",
  "tower-service",
  "tracing",
@@ -5711,7 +5711,6 @@ dependencies = [
  "tokio",
  "tower-layer",
  "tower-service",
- "tracing",
 ]
 
 [[package]]
@@ -5951,7 +5950,7 @@ dependencies = [
  "ssi",
  "thiserror",
  "tokio",
- "tower 0.4.13",
+ "tower 0.5.1",
  "tower-http",
  "tracing",
  "tracing-subscriber",
