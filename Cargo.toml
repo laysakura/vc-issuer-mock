@@ -17,7 +17,7 @@ edition = "2021"
 vc-issuer-mock-core = { path = "crates/vc-issuer-mock-core", version = "0.1.0" }
 
 anyhow = "1.0.89"
-axum = { version = "0.7.6", features = ["macros"] }
+axum = { version = "0.7.7", features = ["macros"] }
 const_format = "0.2.33"
 derive_more = "0.99.18"
 http = "1.1.0"
