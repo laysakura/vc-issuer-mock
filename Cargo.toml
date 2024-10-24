@@ -31,7 +31,7 @@ ssi = { git = "https://github.com/spruceid/ssi.git", rev = "04720d4", features =
     "secp384r1",
     "bbs",
 ] }
-thiserror = "1.0.64"
+thiserror = "1.0.65"
 tokio = { version = "1.41", features = ["macros", "rt-multi-thread"] }
 tower = "0.5.1"
 tower-http = { version = "0.5.2", features = ["trace"] }
